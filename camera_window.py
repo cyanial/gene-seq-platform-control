@@ -7,12 +7,11 @@ Camera Window
 
 """
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QDialog
 
 from PyQt5.uic import loadUi
 
-class camera_window(QWidget):
+class camera_window(QDialog):
 
     def __init__(self):
         super().__init__()
