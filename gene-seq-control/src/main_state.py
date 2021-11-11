@@ -37,7 +37,7 @@ class state_singleton(QtCore.QObject):
             'tirf_pos': 0,
             'homed': False,
             'enabled': False,
-            'tirf_inserted': False,
+            'tirf_inserted': False
         }
 
         self._notify_all_state()
@@ -80,18 +80,6 @@ class state_singleton(QtCore.QObject):
         return self._stage
 
     def updateStateSlot(self):
-        # self._state = {
-        #     'z_pos': 0,
-        #     'x_pos': 0,
-        #     'y_pos': 0,
-        #     'pfs_pos': 0,
-        #     'tirf_pos': 0,
-        #     'x_homed': False,
-        #     'y_homed': False,
-        #     'x_enabled': False,
-        #     'y_enabled': False,
-        #     'tirf_inserted': False,
-        # }
         self._check_state_value('z_pos', self.getMicroscope().zGetPos())
         self._check_state_value('x_pos', self.getStage().getXpos())
         self._check_state_value('y_pos', self.getStage().getYpos())

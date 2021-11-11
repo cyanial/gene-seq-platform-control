@@ -6,254 +6,157 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>651</width>
-    <height>437</height>
+    <width>974</width>
+    <height>820</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_4">
-    <item>
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="tabControl">
-       <attribute name="title">
-        <string>Control</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="1">
-           <widget class="QLabel" name="pfsPosTextLabel">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>11</y>
+      <width>785</width>
+      <height>333</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tabControl">
+     <attribute name="title">
+      <string>Control</string>
+     </attribute>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="1">
+         <widget class="QLabel" name="pfsPosTextLabel">
+          <property name="text">
+           <string>PFS Position:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="zdrivePosLabel">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="homeDisplayLabel">
             <property name="text">
-             <string>PFS Position:</string>
+             <string>Not Home</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="zdrivePosLabel">
+          <item>
+           <widget class="QLabel" name="enableDisplayLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string>Not Enable</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QLabel" name="homeDisplayLabel">
-              <property name="text">
-               <string>Not Home</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="enableDisplayLabel">
-              <property name="text">
-               <string>Not Enable</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+         </layout>
+        </item>
+        <item row="7" column="1">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QLineEdit" name="stepInputLabel"/>
           </item>
-          <item row="7" column="1">
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <widget class="QLineEdit" name="stepInputLabel"/>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_7">
-                <item>
-                 <widget class="QPushButton" name="xPosPlusButton">
-                  <property name="text">
-                   <string>X+</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="xPosMinusButton">
-                  <property name="text">
-                   <string>X-</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QPushButton" name="xPosPlusButton">
+                <property name="text">
+                 <string>X+</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_6">
-                <item>
-                 <widget class="QPushButton" name="yPosPlusButton">
-                  <property name="text">
-                   <string>Y+</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="yPosMinusButton">
-                  <property name="text">
-                   <string>Y-</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QPushButton" name="xPosMinusButton">
+                <property name="text">
+                 <string>X-</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QPushButton" name="yPosPlusButton">
+                <property name="text">
+                 <string>Y+</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="yPosMinusButton">
+                <property name="text">
+                 <string>Y-</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
            </layout>
           </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="pfsPosLabel">
+         </layout>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="pfsPosLabel">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="ydrivePosTextLabel">
+          <property name="text">
+           <string>YDrive Position:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="zdrivePosTextLabel">
+          <property name="text">
+           <string>ZDrive Position:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="tirfStateLabel">
             <property name="text">
-             <string>TextLabel</string>
+             <string>TIRF State</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="ydrivePosTextLabel">
-            <property name="text">
-             <string>YDrive Position:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="zdrivePosTextLabel">
-            <property name="text">
-             <string>ZDrive Position:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QLabel" name="tirfStateLabel">
-              <property name="text">
-               <string>TIRF State</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="tirfPosLabel">
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="5" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QPushButton" name="enableStageButton">
-              <property name="text">
-               <string>Enable</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="homeStageButton">
-              <property name="text">
-               <string>Home</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="xdrivePosTextLabel">
-            <property name="text">
-             <string>XDrive Position:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="xdrivePosLabel">
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QPushButton" name="tirfToggleButton">
-              <property name="text">
-               <string>Insert</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="tirfStepLineEdit"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="addTirfPosButton">
-              <property name="text">
-               <string>+</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="minusTirfPosButton">
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="7" column="2">
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <item>
-               <widget class="QLineEdit" name="xPosInputLabel"/>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="yPosInputLabel"/>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="stageGoButton">
-              <property name="text">
-               <string>Go</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="ydrivePosLabel">
+          <item>
+           <widget class="QLabel" name="tirfPosLabel">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -261,23 +164,124 @@
           </item>
          </layout>
         </item>
+        <item row="5" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QPushButton" name="enableStageButton">
+            <property name="text">
+             <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="homeStageButton">
+            <property name="text">
+             <string>Home</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="xdrivePosTextLabel">
+          <property name="text">
+           <string>XDrive Position:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="xdrivePosLabel">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="tirfToggleButton">
+            <property name="text">
+             <string>Insert</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="tirfStepLineEdit"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addTirfPosButton">
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="minusTirfPosButton">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="7" column="2">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QLineEdit" name="xPosInputLabel"/>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="yPosInputLabel"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="stageGoButton">
+            <property name="text">
+             <string>Go</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="ydrivePosLabel">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="tabConfig">
-       <attribute name="title">
-        <string>Config</string>
-       </attribute>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="tabConfig">
+     <attribute name="title">
+      <string>Config</string>
+     </attribute>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>651</width>
+     <width>974</width>
      <height>26</height>
     </rect>
    </property>

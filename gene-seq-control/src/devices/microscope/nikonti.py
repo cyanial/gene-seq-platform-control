@@ -144,11 +144,58 @@ class nikonTi():
             return self.tirfMoveAbsolute(self.tirf_upperlimit)
         self.TIRF.MoveRelative(pos)
 
-    def shuterCtrl(self):
+    def shutterState(self):
         # '0b11111' close all
         # '0b00000' open all
-        pass
+        # '0b11110' open shutter 1
+        # '0b11101' open shutter 2
+        # '0b11011' open shutter 3
+        # '0b10111' open shutter 4
+        # '0b01111' open main shutter
+        status = int(self.LU4ALaser.IsOpenShutter)
+        laser = {
+            '1': bool(status & 1 << 0),
+            '2': bool(status & 1 << 1),
+            '3': bool(status & 1 << 2),
+            '4': bool(status & 1 << 3),
+            'main': bool(status & 1 << 4)
+        }
+        return laser
 
+    def shutter1(self, onoff):
+        status = int(self.LU4ALaser.IsOpenShutter)
+        if onoff:
+            self.LU4ALaser.IsOpenShutter = status & ~(1 << 0)
+        else:
+            self.LU4ALaser.IsOpenShutter = status | 1 << 0
+
+    def shutter2(self, onoff):
+        status = int(self.LU4ALaser.IsOpenShutter)
+        if onoff:
+            self.LU4ALaser.IsOpenShutter = status & ~(1 << 1)
+        else:
+            self.LU4ALaser.IsOpenShutter = status | 1 << 1
+
+    def shutter3(self, onoff):
+        status = int(self.LU4ALaser.IsOpenShutter)
+        if onoff:
+            self.LU4ALaser.IsOpenShutter = status & ~(1 << 2)
+        else:
+            self.LU4ALaser.IsOpenShutter = status | 1 << 2
+
+    def shutter4(self, onoff):
+        status = int(self.LU4ALaser.IsOpenShutter)
+        if onoff:
+            self.LU4ALaser.IsOpenShutter = status & ~(1 << 3)
+        else:
+            self.LU4ALaser.IsOpenShutter = status | 1 << 3
+
+    def shutterMain(self, onoff):
+        status = int(self.LU4ALaser.IsOpenShutter)
+        if onoff:
+            self.LU4ALaser.IsOpenShutter = status & ~(1 << 4)
+        else:
+            self.LU4ALaser.IsOpenShutter = status | 1 << 4
 
 
 if __name__ == "__main__":
