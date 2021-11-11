@@ -4,8 +4,8 @@ Python bind andor sdk 2.x
 2021/11/06
 
 To-do List:
-1. [  ] PreAmp - Selection and Choosen
-2. [  ] EM Gain - a range not advanced mode
+1. [x] PreAmp - set 5x
+2. [x] EM Gain - a range not advanced mode
 3. [  ] Snap Mode
 4. [  ] Live Mode
 5. [  ] ...
@@ -15,9 +15,12 @@ To-do List:
 import ctypes
 import os
 
-from ctypes import c_int, c_ulong, c_char_p, c_float, windll
+from ctypes import c_int, c_ulong, c_char_p, c_float
 from ctypes import byref, sizeof, Structure, POINTER
 from ctypes import create_string_buffer
+from ctypes.wintypes import WORD 
+
+import numpy as np
 
 
 
@@ -213,6 +216,11 @@ camdll.SetImage.argtypes = [c_int, c_int, c_int, c_int, c_int, c_int]
 camdll.SetAcquisitionMode.argtypes = [c_int]
 camdll.SetExposureTime.argtypes = [c_float]
 camdll.GetAcquisitionTimings.argtypes = [POINTER(c_float), POINTER(c_float), POINTER(c_float)]
+camdll.SetPreAmpGain.argtypes = [c_int]
+camdll.GetEMGainRange.argtypes = [POINTER(c_int), POINTER(c_int)]
+camdll.SetEMCCDGain.argtypes = [c_int]
+camdll.GetEMCCDGain.argtypes = [POINTER(c_int)]
+camdll.GetAcquiredData16.argtypes = [POINTER(WORD), c_ulong]
 
 class Andor_EMCCD():
     """Class Interface for Andor EMCCD"""
@@ -272,6 +280,15 @@ class Andor_EMCCD():
         self.HSNumber = HSNumber
         self.ADNumber = ADNumber
         self.BitDepth = BitDepth.value
+
+        # Set PreAmp Gain to 5x
+        camdll.SetPreAmpGain(2)
+
+        # Get EM Gain Range
+        emgain_low, emgain_high = c_int(), c_int()
+        camdll.GetEMGainRange(byref(emgain_low), byref(emgain_high))
+        self.EMGain_Low = emgain_low.value
+        self.EMGain_High = emgain_high.value
 
         # Get Temperature Control Range
         temp_min, temp_max = c_int(), c_int()
@@ -336,8 +353,28 @@ class Andor_EMCCD():
         camdll.GetAcquisitionTimings(byref(exposureTime), byref(no_use_1), byref(no_use_2))
         return exposureTime.value
 
+    def setEMGain(self, gain):
+        if gain < self.EMGain_Low or gain > self.EMGain_High:
+            return
+        camdll.SetEMCCDGain(gain)
 
-    
+    def getEMGain(self):
+        gain = c_int()
+        camdll.GetEMCCDGain(byref(gain))
+        return gain.value
+        
+    def startAcquisition(self):
+        camdll.StartAcquisition()
+
+    def isIDLE(self):
+        return self.getStatus() == DRV_IDLE
+
+    def acquireData(self):
+        total_pixels = self.gblXPixels * self.gblYPixels
+        pImageArray = (WORD * (total_pixels))()
+        camdll.GetAcquiredData16(byref(pImageArray), total_pixels)
+        return np.ctypeslib.as_array(pImageArray).reshape((self.gblXPixels, self.gblYPixels))
+
 
 if __name__ == "__main__":
     cam = Andor_EMCCD()
