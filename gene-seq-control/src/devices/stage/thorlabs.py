@@ -107,6 +107,18 @@ class Kinesis_Stage():
     def getYpos_mm(self):
         return self.ypos_to_mm(self.getYpos())
 
+    def disable(self):
+        self.disableX()
+        self.disableY()
+
+    def enable(self):
+        self.enableX()
+        self.enableY()
+
+    def home(self):
+        self.homeX()
+        self.homeY()
+
     def enableX(self):
         """Enable x-axis"""
         return kndll.BMC_EnableChannel(SERIALNO, 1)
@@ -128,6 +140,16 @@ class Kinesis_Stage():
 
     def homeY(self):
         return kndll.BMC_Home(SERIALNO, 2)
+
+    def moveAbs_mm(self, x, y):
+        self.moveXabsolute(self.mm_to_xpos(x))
+        self.moveYabsolute(self.mm_to_ypos(y))
+
+    def moveXRel_mm(self, step):
+        self.moveXrelative(self.mm_to_xpos(step))
+
+    def moveYRel_mm(self, step):
+        self.moveYrelative(self.mm_to_ypos(step))
 
     def moveXabsolute(self, pos):
         return kndll.BMC_MoveToPosition(SERIALNO, 1, pos)
@@ -156,6 +178,12 @@ class Kinesis_Stage():
 
     def getYStatusBit(self):
         return kndll.BMC_GetStatusBits(SERIALNO, 2)
+
+    def isHomed(self):
+        return self.isXhomed() and self.isYhomed()
+    
+    def isEnable(self):
+        return self.isXenable() and self.isYenable()
 
     def isXenable(self):
         return (self.getXStatusBit() & 0x80000000) == 0x80000000

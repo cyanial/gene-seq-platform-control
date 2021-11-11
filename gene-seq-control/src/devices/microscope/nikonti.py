@@ -123,7 +123,7 @@ class nikonTi():
         return int(self.TIRF.Position)
 
     def tirfIsInserted(self):
-        return int(self.TIRF.InInserted)
+        return int(self.TIRF.IsInserted)
 
     def tirfInsert(self):
         self.TIRF.Insert()
@@ -142,7 +142,7 @@ class nikonTi():
             return self.tirfMoveAbsolute(self.tirf_upperlimit)
         if curr_pos + pos < self.tirf_lowerlimit:
             return self.tirfMoveAbsolute(self.tirf_upperlimit)
-        self.MoveRelative(pos)
+        self.TIRF.MoveRelative(pos)
 
     def shuterCtrl(self):
         # '0b11111' close all

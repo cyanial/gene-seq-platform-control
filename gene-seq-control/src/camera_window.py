@@ -16,8 +16,8 @@ class camera_window(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.ui = loadUi('./gui/camera_show.ui', self)
-        self.ui.liveButton.clicked.connect(self.slot_handle)
+        loadUi('gui/camera_show.ui', self)
+        self.liveButton.clicked.connect(self.slot_handle)
 
     def slot_handle(self):
         print('aa')
