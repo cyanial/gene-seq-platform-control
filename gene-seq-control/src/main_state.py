@@ -12,6 +12,7 @@ from PyQt5 import QtCore
 
 from .devices.microscope.nikonti import nikonTi
 from .devices.stage.thorlabs import Kinesis_Stage
+from .devices.camera.andor import Andor_EMCCD
 
 class state_singleton(QtCore.QObject):
     _instance = None
@@ -28,6 +29,7 @@ class state_singleton(QtCore.QObject):
         super().__init__()
         self._microscope = nikonTi()
         self._stage = Kinesis_Stage()
+        self._camera = Andor_EMCCD()
 
         self._state = {
             'z_pos': 0,
@@ -37,7 +39,11 @@ class state_singleton(QtCore.QObject):
             'tirf_pos': 0,
             'homed': False,
             'enabled': False,
-            'tirf_inserted': False
+            'tirf_inserted': False,
+            'exposure_time': 0,
+            'cam_temperature': 0,
+            'cam_cooler_state': '',
+            'cam_state': '',
         }
 
         self._notify_all_state()
@@ -45,6 +51,18 @@ class state_singleton(QtCore.QObject):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateStateSlot)
         self.timer.start(200)
+
+    def camTemperature(self):
+        return self._state['cam_temperature']
+
+    def camCoolerState(self):
+        return self._state['cam_cooler_state']
+
+    def camState(self):
+        return self._state['cam_state']
+
+    def exposureTime(self):
+        return self._state['exposure_time']
 
     def tirfInserted(self):
         return self._state['tirf_inserted']
@@ -79,6 +97,15 @@ class state_singleton(QtCore.QObject):
     def getStage(self):
         return self._stage
 
+    def getCamera(self):
+        return self._camera
+
+    def setExposureTime(self, time):
+        real_time = self.getCamera().setExposureTime(time)
+        self._state['exposure_time'] = real_time
+        print(real_time)
+        self.sig_state_updated.emit('exposure_time')
+
     def updateStateSlot(self):
         self._check_state_value('z_pos', self.getMicroscope().zGetPos())
         self._check_state_value('x_pos', self.getStage().getXpos())
@@ -88,7 +115,10 @@ class state_singleton(QtCore.QObject):
         self._check_state_value('homed', self.getStage().isHomed())
         self._check_state_value('enabled', self.getStage().isEnable())
         self._check_state_value('tirf_inserted', self.getMicroscope().tirfIsInserted())
-        
+        cam_temp, cam_cooler = self.getCamera().getTemperature()
+        self._check_state_value('cam_temperature', cam_temp)
+        self._check_state_value('cam_cooler_state', cam_cooler)
+        self._check_state_value('cam_state', self.getCamera().getStatus())
 
     def _check_state_value(self, item, value):
         if self._state[item] != value:

@@ -224,6 +224,29 @@ camdll.GetAcquiredData16.argtypes = [POINTER(WORD), c_ulong]
 
 class Andor_EMCCD():
     """Class Interface for Andor EMCCD"""
+    
+    _cooler_state_dict = {
+        20075: 'System not initialized',
+        20072: 'Acquisition in progress',
+        20013: 'Unable to communicate with card',
+        20034: 'OFF',
+        20036: 'Stabilized',
+        20037: 'Not React',
+        20040: 'Drifed',
+        20035: 'Not Stabilized',
+    }
+
+    _status_state_dict = {
+        20073: 'IDLE',
+        20074: 'Executing temperature cycle',
+        20072: 'Acquiring',
+        20023: 'Unable to meet accumulate cycle time',
+        20022: 'Unable to meet Kinetic cycle time',
+        20013: 'Unable to communicate with card',
+        20018: 'Unable read data via required rate',
+        20019: 'Camera memory going full',
+        20026: 'Overflow of the spool buffer',
+    }
 
     def __init__(self):
         self._connected = False
@@ -303,6 +326,7 @@ class Andor_EMCCD():
         self.setAcquisitionMode()
 
     def __del__(self):
+        self.coolerOFF()
         camdll.ShutDown()
         print('Shutdown')
 
@@ -312,12 +336,12 @@ class Andor_EMCCD():
     def getStatus(self):
         status = c_int()
         camdll.GetStatus(byref(status))
-        return status.value
+        return self._status_state_dict[status.value]
 
     def getTemperature(self):
         temperature = c_float()
         cooler_state = camdll.GetTemperatureF(byref(temperature))
-        return temperature.value, cooler_state
+        return temperature.value, self._cooler_state_dict[cooler_state]
 
     def setTemperature(self, temperature):
         return camdll.SetTemperature(temperature)

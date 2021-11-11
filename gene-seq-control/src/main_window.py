@@ -41,6 +41,14 @@ class main_window(QtWidgets.QMainWindow):
         self.yPosMinusButton.clicked.connect(self.stageYStepDown)
         self.addTirfPosButton.clicked.connect(self.tirfPosUp)
         self.minusTirfPosButton.clicked.connect(self.tirfPosDown)
+        self.setExposureTimeButton.clicked.connect(self.setExposureTime)
+        self.setTemperatureButton.clicked.connect(self.setCoolerTemperature)
+        self.coolerONButton.clicked.connect(self.coolerOn)
+        self.coolerOFFButton.clicked.connect(self.coolerOff)
+        self.fanHighButton.clicked.connect(self.fanHigh)
+        self.fanLowButton.clicked.connect(self.fanLow)
+        self.fanOFFButton.clicked.connect(self.fanOff)
+        self.setEMGainButton.clicked.connect(self.setEMGain)
         
     def enableStage(self):
         logger.info('Enable Stage')
@@ -49,6 +57,49 @@ class main_window(QtWidgets.QMainWindow):
     def disableStage(self):
         logger.info('Disable Stage')
         self.state.getStage().disable()
+
+    @QtCore.pyqtSlot()
+    def setEMGain(self):
+        logger.info('Set EM Gain')
+        gain = int(self.emGainLineEdit.text())
+        self.state.getCamera().setEMGain(gain)
+
+    @QtCore.pyqtSlot()
+    def fanHigh(self):
+        logger.info('Fan High')
+        self.state.getCamera().fanFullSpeed()
+
+    @QtCore.pyqtSlot()
+    def fanLow(self):
+        logger.info('Fan Low')
+        self.state.getCamera().fanLowSpeed()
+
+    @QtCore.pyqtSlot()
+    def fanOff(self):
+        logger.info('Fan Off')
+        self.state.getCamera().fanOFF()
+
+    @QtCore.pyqtSlot()
+    def coolerOff(self):
+        logger.info('Cooler OFF')
+        self.state.getCamera().coolerOFF()
+
+    @QtCore.pyqtSlot()
+    def coolerOn(self):
+        logger.info('Cooler ON')
+        self.state.getCamera().coolerON()
+
+    @QtCore.pyqtSlot()
+    def setCoolerTemperature(self):
+        logger.info('Set Cooler Temperature')
+        temp = int(self.cameraTemperatureLineEdit.text())
+        self.state.getCamera().setTemperature(temp)
+
+    @QtCore.pyqtSlot()
+    def setExposureTime(self):
+        logger.info('Set exposure time')
+        sec = float(self.exposureTimeLineEdit.text())
+        self.state.setExposureTime(sec)
 
     @QtCore.pyqtSlot()
     def tirfPosUp(self):
@@ -141,3 +192,11 @@ class main_window(QtWidgets.QMainWindow):
             else:
                 self.tirfToggleButton.setText('Insert')
                 self.tirfStateLabel.setText('Not Insert')
+        if item == 'exposure_time':
+            self.exposureTimeLabel.setText(str(round(self.state.exposureTime(), 5)))
+        if item == 'cam_temperature':
+            self.cameraTemperatureLabel.setText(str(round(self.state.camTemperature(), 2)))
+        if item == 'cam_cooler_state':
+            self.cameraCoolerState.setText(self.state.camCoolerState())
+        if item == 'cam_state':
+            print(self.state.camState())
