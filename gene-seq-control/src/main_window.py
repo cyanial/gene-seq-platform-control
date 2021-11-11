@@ -26,7 +26,7 @@ class main_window(QtWidgets.QMainWindow):
 
         self.state = state_singleton()
 
-        self.camera_window = camera_window()
+        self.camera_window = camera_window(self.state)
         self.camera_window.show()
 
         self.state.sig_state_updated.connect(self.updateGui)
@@ -198,5 +198,5 @@ class main_window(QtWidgets.QMainWindow):
             self.cameraTemperatureLabel.setText(str(round(self.state.camTemperature(), 2)))
         if item == 'cam_cooler_state':
             self.cameraCoolerState.setText(self.state.camCoolerState())
-        if item == 'cam_state':
-            print(self.state.camState())
+        # if item == 'cam_state':
+        #     print(self.state.camState())

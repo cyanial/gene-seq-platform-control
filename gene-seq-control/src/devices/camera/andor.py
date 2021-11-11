@@ -220,7 +220,7 @@ camdll.SetPreAmpGain.argtypes = [c_int]
 camdll.GetEMGainRange.argtypes = [POINTER(c_int), POINTER(c_int)]
 camdll.SetEMCCDGain.argtypes = [c_int]
 camdll.GetEMCCDGain.argtypes = [POINTER(c_int)]
-camdll.GetAcquiredData16.argtypes = [POINTER(WORD), c_ulong]
+# camdll.GetAcquiredData16.argtypes = [POINTER(WORD), c_ulong]
 
 class Andor_EMCCD():
     """Class Interface for Andor EMCCD"""
@@ -237,6 +237,7 @@ class Andor_EMCCD():
     }
 
     _status_state_dict = {
+        0: 'NULL',
         20073: 'IDLE',
         20074: 'Executing temperature cycle',
         20072: 'Acquiring',
@@ -397,7 +398,11 @@ class Andor_EMCCD():
         total_pixels = self.gblXPixels * self.gblYPixels
         pImageArray = (WORD * (total_pixels))()
         camdll.GetAcquiredData16(byref(pImageArray), total_pixels)
+        # print(pImageArray[100])
         return np.ctypeslib.as_array(pImageArray).reshape((self.gblXPixels, self.gblYPixels))
+
+    def abortAcquisition(self):
+        return camdll.AbortAcquisition()
 
 
 if __name__ == "__main__":

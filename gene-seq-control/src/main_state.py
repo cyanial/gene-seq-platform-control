@@ -18,14 +18,18 @@ class state_singleton(QtCore.QObject):
     _instance = None
 
     sig_state_updated = QtCore.pyqtSignal(str)
+    sig_camera_status = QtCore.pyqtSignal(str)
 
 
     def __new__(cls, *args, **kw):
         if cls._instance is None:
             cls._instance = QtCore.QObject.__new__(cls, *args, **kw)
+            cls._instance._initialized = False
         return cls._instance
 
     def __init__(self):
+        if self._initialized:
+            return
         super().__init__()
         self._microscope = nikonTi()
         self._stage = Kinesis_Stage()
@@ -51,6 +55,8 @@ class state_singleton(QtCore.QObject):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateStateSlot)
         self.timer.start(200)
+
+        self._initialized = True
 
     def camTemperature(self):
         return self._state['cam_temperature']
@@ -103,7 +109,7 @@ class state_singleton(QtCore.QObject):
     def setExposureTime(self, time):
         real_time = self.getCamera().setExposureTime(time)
         self._state['exposure_time'] = real_time
-        print(real_time)
+        # print(real_time)
         self.sig_state_updated.emit('exposure_time')
 
     def updateStateSlot(self):
@@ -118,7 +124,12 @@ class state_singleton(QtCore.QObject):
         cam_temp, cam_cooler = self.getCamera().getTemperature()
         self._check_state_value('cam_temperature', cam_temp)
         self._check_state_value('cam_cooler_state', cam_cooler)
-        self._check_state_value('cam_state', self.getCamera().getStatus())
+        # self._check_state_value('cam_state', self.getCamera().getStatus())
+        _cam_state = self.getCamera().getStatus()
+        if self._state['cam_state'] != _cam_state:
+            self._state['cam_state'] = _cam_state
+            self.sig_camera_status.emit(_cam_state)
+            
 
     def _check_state_value(self, item, value):
         if self._state[item] != value:
@@ -130,4 +141,3 @@ class state_singleton(QtCore.QObject):
             self.sig_state_updated.emit(k)
         
         
-
