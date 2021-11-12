@@ -1,0 +1,7 @@
+x. Camera Live mode (update frequency need be higher)
+x. PyQtGraph to implement the histogram 
+3. serial
+4. sequencing task window
+  4.1 Setting task parameters (e.g. rounds, output files, ...)
+  4.2 Stop, Continue, Abort
+  4.3 

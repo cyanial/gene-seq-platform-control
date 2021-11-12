@@ -329,7 +329,7 @@ class Andor_EMCCD():
     def __del__(self):
         self.coolerOFF()
         camdll.ShutDown()
-        print('Shutdown')
+        print('Shutdown - Camera')
 
     def available(self):
         return self._connected

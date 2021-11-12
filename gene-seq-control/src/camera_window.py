@@ -9,6 +9,8 @@ Camera Window
 
 import qimage2ndarray
 
+import pyqtgraph as pg
+
 from PyQt5 import QtCore
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDialog, QGraphicsScene
@@ -26,28 +28,38 @@ class camera_window(QDialog):
         self.state = state_singleton()
         self.snapping = False
         self.living = False
+
         self.image = None
 
+        # pg.setConfigOptions(antialias=True)
         self.state.sig_camera_status.connect(self.updateStatus)
         self.liveButton.clicked.connect(self.live)
         self.SnapButton.clicked.connect(self.snap)
-        self.histoButton.clicked.connect(self.histogram)
+        self.liveTimer = QtCore.QTimer()
+        self.liveTimer.timeout.connect(self.live_image)
 
     @QtCore.pyqtSlot()
-    def histogram(self):
-        if self.image:
-            pass
+    def live_image(self):
+        state = self.state.getCamera().getStatus()
+        self.statusLabel.setText(state)
+        if state == 'IDLE':
+            self.image = self.state.getCamera().acquireData()
+            self.showImage()
+            self.state.getCamera().startAcquisition()
+
         
     @QtCore.pyqtSlot()
     def live(self):
         if self.living:
             self.living = False
             self.liveButton.setText('live')
-            # self.state.getCamera().abortAcquisition()
+            self.state.getCamera().abortAcquisition()
+            self.liveTimer.stop()
         else:
             self.living = True
             self.liveButton.setText('stop')
-            # self.state.getCamera().startAcquisition()
+            self.state.getCamera().startAcquisition()
+            self.liveTimer.start(self.state.exposureTime() * 1000)
 
     @QtCore.pyqtSlot()
     def snap(self):
@@ -57,19 +69,12 @@ class camera_window(QDialog):
 
     @QtCore.pyqtSlot()
     def showImage(self):
-        if self.autoScaleChecked.isChecked():
-            # print('do auto scale')
-            # arr = self.image
-            # new_arr = ((arr - arr.min()) * (1/(arr.max() - arr.min()) * 255)).astype('uint8')
-            # self.image = new_arr
-            pass
-        scene = QGraphicsScene(self)
-        scene.addPixmap(QPixmap.fromImage(qimage2ndarray.array2qimage(self.image)))
-        self.graphicsView.setScene(scene)
-        # tifffile.imsave('test.tif', self.image)
+        self.image_view.setImage(self.image, autoLevels=True, autoRange=True, autoHistogramRange=True)
     
     @QtCore.pyqtSlot(str)
     def updateStatus(self, state):
+        if self.living:
+            return
         self.statusLabel.setText(state)
         if state == 'IDLE':
             if self.snapping:
