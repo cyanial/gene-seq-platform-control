@@ -15,21 +15,30 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.uic import loadUi
 
 from .main_state import state_singleton
+from .camera import camera
 
 class camera_window(QDialog):
 
+    sig_snap = QtCore.pyqtSignal()
+    sig_acquiredata = QtCore.pyqtSignal()
+    sig_live_on = QtCore.pyqtSignal()
+    sig_live_off = QtCore.pyqtSignal()
+
     def __init__(self):
         super().__init__()
-
         loadUi('gui/camera_show.ui', self)
+        self.camera_worker = camera()
         self.state = state_singleton()
         self.snapping = False
         self.living = False
 
-        self.image = None
-
         # pg.setConfigOptions(antialias=True)
-        self.state.sig_camera_status.connect(self.updateStatus)
+        self.camera_worker.sig_state_camera_status.connect(self.updateStatus)
+        self.sig_snap.connect(self.camera_worker.startAcquisition)
+        self.sig_acquiredata.connect(self.camera_worker.acquireData)
+        self.camera_worker.sig_image_data_ready.connect(self.showImage)
+        self.sig_live_on.connect(self.camera_worker.startAcquisition)
+        self.sig_live_off.connect(self.camera_worker.abortAcquisition)
         self.liveButton.clicked.connect(self.live)
         self.SnapButton.clicked.connect(self.snap)
         self.liveTimer = QtCore.QTimer()
@@ -37,12 +46,11 @@ class camera_window(QDialog):
 
     @QtCore.pyqtSlot()
     def live_image(self):
-        state = self.state.getCamera().getStatus()
+        state = self.camera_worker.requestStatus()
         self.statusLabel.setText(state)
         if state == 'IDLE':
-            self.image = self.state.getCamera().acquireData()
-            self.showImage()
-            self.state.getCamera().startAcquisition()
+            self.sig_acquiredata.emit()
+            self.sig_live_on.emit()
 
         
     @QtCore.pyqtSlot()
@@ -50,36 +58,35 @@ class camera_window(QDialog):
         if self.living:
             self.living = False
             self.liveButton.setText('live')
-            self.state.getCamera().abortAcquisition()
+            self.sig_live_off.emit()
             self.liveTimer.stop()
         else:
             self.living = True
             self.liveButton.setText('stop')
-            self.state.getCamera().startAcquisition()
-            self.liveTimer.start(self.state.exposureTime() * 1000)
+            self.sig_live_on.emit()
+            self.liveTimer.start(self.state['exposure_time'] * 1000)
 
     @QtCore.pyqtSlot()
     def snap(self):
-        self.state.getCamera().startAcquisition()
         self.snapping = True
         self.liveButton.setEnabled(False)
+        self.sig_snap.emit()
 
     @QtCore.pyqtSlot()
     def showImage(self):
-        self.image_view.setImage(self.image, autoLevels=True, autoRange=True, autoHistogramRange=True)
+        self.image_view.setImage(self.state['npimage'], autoLevels=True, autoRange=True, autoHistogramRange=True)
     
-    @QtCore.pyqtSlot(str)
-    def updateStatus(self, state):
+    @QtCore.pyqtSlot()
+    def updateStatus(self):
         if self.living:
             return
+        state = self.state['cam_state']
         self.statusLabel.setText(state)
         if state == 'IDLE':
             if self.snapping:
                 self.snapping = False
                 self.liveButton.setEnabled(True)
-                self.image = self.state.getCamera().acquireData()
-                self.showImage()
-                # print(self.image)
+                self.sig_acquiredata.emit()
 
 
 

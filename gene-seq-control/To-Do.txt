@@ -5,3 +5,10 @@ x. PyQtGraph to implement the histogram
   4.1 Setting task parameters (e.g. rounds, output files, ...)
   4.2 Stop, Continue, Abort
   4.3 
+-----------------------------------------------------------------
+
+new to-do
+1. implement thread for each device (mic, ccd, stage, serial)
+2. implement a image queue or whatever obj to 
+    keep images save in memory 
+    persist it in disk
