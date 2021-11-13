@@ -7,13 +7,10 @@ Camera Window
 
 """
 
-import qimage2ndarray
-
 import pyqtgraph as pg
 
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QDialog, QGraphicsScene
+from PyQt5.QtWidgets import QDialog
 
 from PyQt5.uic import loadUi
 
@@ -21,7 +18,7 @@ from .main_state import state_singleton
 
 class camera_window(QDialog):
 
-    def __init__(self, state):
+    def __init__(self):
         super().__init__()
 
         loadUi('gui/camera_show.ui', self)

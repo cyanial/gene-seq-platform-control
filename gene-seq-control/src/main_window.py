@@ -9,6 +9,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.uic import loadUi
 
 from .camera_window import camera_window
+from .seq_manager import seq_manager
 from .main_state import state_singleton
 
 import logging
@@ -26,8 +27,11 @@ class main_window(QtWidgets.QMainWindow):
 
         self.state = state_singleton()
 
-        self.camera_window = camera_window(self.state)
+        self.camera_window = camera_window()
         self.camera_window.show()
+
+        self.seq_manager = seq_manager()
+        self.seq_manager.show()
 
         self.state.sig_state_updated.connect(self.updateGui)
 
