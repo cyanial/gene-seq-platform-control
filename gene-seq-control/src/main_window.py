@@ -14,6 +14,7 @@ from .main_state import state_singleton
 
 from .camera import camera
 from .stage import stage
+from .microscope import microscope
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,6 +31,11 @@ class main_window(QtWidgets.QMainWindow):
     sig_stage_moveabsolute = QtCore.pyqtSignal(float, float)
     sig_stage_xstep = QtCore.pyqtSignal(float)
     sig_stage_ystep = QtCore.pyqtSignal(float)
+
+    sig_mic_tirf_insert = QtCore.pyqtSignal()
+    sig_mic_tirf_extract = QtCore.pyqtSignal()
+    sig_mic_tirf_step = QtCore.pyqtSignal(int)
+
 
     def __init__(self):
         super().__init__()
@@ -49,6 +55,11 @@ class main_window(QtWidgets.QMainWindow):
         self.stage_worker.moveToThread(self.stage_thread)
         self.stage_worker.sig_state_stage_update.connect(self.updateStageState)
 
+        # self.mic_thread = QtCore.QThread()
+        self.mic_worker = microscope()
+        # self.mic_worker.moveToThread(self.mic_thread)
+        self.mic_worker.sig_state_microscope_update.connect(self.updateMicState)
+
         # Create windows
         self.camera_window = camera_window()
         self.camera_window.show()
@@ -60,13 +71,19 @@ class main_window(QtWidgets.QMainWindow):
         # Thread up
         self.camera_thread.start()
         self.stage_thread.start()
+        # self.mic_thread.start()
 
         self.state.sig_update_request.connect(self.camera_worker.updateCameraState)
         self.state.sig_update_request.connect(self.stage_worker.updateStageState)
+        self.state.sig_update_request.connect(self.mic_worker.updateMicroscopeState)
 
-        # self.tirfToggleButton.clicked.connect(self.handleTirfInsertButton)
-        # self.addTirfPosButton.clicked.connect(self.tirfPosUp)
-        # self.minusTirfPosButton.clicked.connect(self.tirfPosDown)
+        # Microscope signal
+        self.tirfToggleButton.clicked.connect(self.handleTirfInsertButton)
+        self.sig_mic_tirf_insert.connect(self.mic_worker.insertTirf)
+        self.sig_mic_tirf_extract.connect(self.mic_worker.extractTirf)
+        self.addTirfPosButton.clicked.connect(self.tirfPosUp)
+        self.minusTirfPosButton.clicked.connect(self.tirfPosDown)
+        self.sig_mic_tirf_step.connect(self.mic_worker.tirfStep)
 
         # Stage signal
         self.enableStageButton.clicked.connect(self.stage_worker.enable)
@@ -95,14 +112,17 @@ class main_window(QtWidgets.QMainWindow):
 
         self.camera_worker.notify_all_state()
         self.stage_worker.notify_all_state()
+        self.mic_worker.notify_all_state()
         
     def __del__(self):
         try:
             self.camera_thread.quit()
             self.stage_thread.quit()
+            # self.mic_thread.quit()
 
             self.camera_thread.wait()
             self.stage_thread.wait()
+            # self.mic_thread.wait()
         except:
             pass
 
@@ -136,13 +156,13 @@ class main_window(QtWidgets.QMainWindow):
     def tirfPosUp(self):
         logger.info('Tirf Pos up')
         step = int(self.tirfStepLineEdit.text())
-        self.state.getMicroscope().tirfMoveRealtive(step)
+        self.sig_mic_tirf_step.emit(step)
 
     @QtCore.pyqtSlot()
     def tirfPosDown(self):
         logger.info('Tirf Pos donw')
         step = int(self.tirfStepLineEdit.text())
-        self.state.getMicroscope().tirfMoveRealtive(-1 * step)
+        self.sig_mic_tirf_step.emit(-1 * step)
 
     @QtCore.pyqtSlot()
     def stageMoveAbsolute(self):
@@ -177,10 +197,10 @@ class main_window(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def handleTirfInsertButton(self):
-        if self.state.tirfInserted():
-            self.state.getMicroscope().tirfExtract()
+        if self.state['tirf_inserted']:
+            self.sig_mic_tirf_extract.emit()
         else:
-            self.state.getMicroscope().tirfInsert()
+            self.sig_mic_tirf_insert.emit()
 
 
     @QtCore.pyqtSlot(str)
@@ -205,3 +225,13 @@ class main_window(QtWidgets.QMainWindow):
         if k == 'enabled':
             self.enableDisplayLabel.setText('Enabled' if self.state['enabled'] else 'Not Enable')
     
+    @QtCore.pyqtSlot(str)
+    def updateMicState(self, k):
+        if k == 'z_pos':
+            self.zdrivePosLabel.setText(str(self.mic_worker.zpos_to_um(self.state['z_pos'])) + ' um')
+        if k == 'pfs_pos':
+            self.pfsPosLabel.setText(str(self.state['pfs_pos']))
+        if k == 'tirf_pos':
+            self.tirfPosLabel.setText(str(self.state['tirf_pos']))
+        if k == 'tirf_inserted':
+            self.tirfStateLabel.setText('Insert' if self.state['tirf_inserted'] else 'Not Insert')

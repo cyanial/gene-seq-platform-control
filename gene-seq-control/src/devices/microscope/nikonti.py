@@ -53,6 +53,7 @@ class nikonTi():
         self._connected = True
 
     def __del__(self):
+        print('Shutdown - NikonTi')
         pass
 
     def available(self):
@@ -66,7 +67,7 @@ class nikonTi():
         """ZDrive Refocus"""
         self.ZDrive.Refocus()
 
-    def zGetPos(self):
+    def zPos(self):
         return int(self.ZDrive.Position)
 
     def um_to_zpos(self, um):
