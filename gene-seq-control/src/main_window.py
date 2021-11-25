@@ -31,6 +31,8 @@ class main_window(QtWidgets.QMainWindow):
     sig_stage_moveabsolute = QtCore.pyqtSignal(float, float)
     sig_stage_xstep = QtCore.pyqtSignal(float)
     sig_stage_ystep = QtCore.pyqtSignal(float)
+    sig_stage_enable = QtCore.pyqtSignal()
+    sig_stage_disable = QtCore.pyqtSignal()
 
     sig_mic_tirf_insert = QtCore.pyqtSignal()
     sig_mic_tirf_extract = QtCore.pyqtSignal()
@@ -64,9 +66,8 @@ class main_window(QtWidgets.QMainWindow):
         self.camera_window = camera_window()
         self.camera_window.show()
 
-        # self.seq_manager = seq_manager()
-        # self.seq_manager.show()
-
+        self.seq_manager = seq_manager()
+        self.seq_manager.show()
         
         # Thread up
         self.camera_thread.start()
@@ -86,7 +87,9 @@ class main_window(QtWidgets.QMainWindow):
         self.sig_mic_tirf_step.connect(self.mic_worker.tirfStep)
 
         # Stage signal
-        self.enableStageButton.clicked.connect(self.stage_worker.enable)
+        self.enableStageButton.clicked.connect(self.handleEnable)
+        self.sig_stage_enable.connect(self.stage_worker.enable)
+        self.sig_stage_disable.connect(self.stage_worker.disable)
         self.homeStageButton.clicked.connect(self.stage_worker.home)
         self.stageGoButton.clicked.connect(self.stageMoveAbsolute)
         self.sig_stage_moveabsolute.connect(self.stage_worker.moveAbsolute)
@@ -126,13 +129,14 @@ class main_window(QtWidgets.QMainWindow):
         except:
             pass
 
-    def enableStage(self):
-        logger.info('Enable Stage')
-        self.state.getStage().enable()
-
-    def disableStage(self):
-        logger.info('Disable Stage')
-        self.state.getStage().disable()
+    @QtCore.pyqtSlot()
+    def handleEnable(self):
+        if self.state['enabled']:
+            self.enableStageButton.setText('Enable')
+            self.sig_stage_disable.emit()
+        else:
+            self.enableStageButton.setText('Disable')
+            self.sig_stage_enable.emit()
 
     @QtCore.pyqtSlot()
     def setEMGain(self):

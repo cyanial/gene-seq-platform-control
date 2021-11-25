@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
-    <height>186</height>
+    <width>487</width>
+    <height>177</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,12 +73,22 @@
         </size>
        </property>
        <property name="text">
-        <string>Task #</string>
+        <string>Task Name</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="allTaskNumberLineEdit"/>
+      <widget class="QLabel" name="currentTaskName">
+       <property name="minimumSize">
+        <size>
+         <width>360</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Task</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -95,7 +105,7 @@
       <widget class="QLabel" name="outputfolder">
        <property name="minimumSize">
         <size>
-         <width>256</width>
+         <width>360</width>
          <height>0</height>
         </size>
        </property>

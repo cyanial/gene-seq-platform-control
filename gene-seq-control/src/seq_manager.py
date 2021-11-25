@@ -6,7 +6,9 @@ Seq Manager Window
 
 import os
 
-from PyQt5.QtWidgets import QDialog
+import PyQt5.QtCore
+
+from PyQt5.QtWidgets import QDialog, QFileDialog
 from PyQt5.uic import loadUi
 
 from .main_state import state_singleton
@@ -22,7 +24,15 @@ class seq_manager(QDialog):
         self.state = state_singleton()
         loadUi('gui/seq_manager.ui', self)
 
-        self.output_folder = os.getcwd() + '/out'
-        print(self.output_folder)
+        self._set_output_folder(os.getcwd() + '\\out')
 
-        print('init')
+        self.outputFolderButton.clicked.connect(self.chooseDirctory)
+
+    @PyQt5.QtCore.pyqtSlot()
+    def chooseDirctory(self):
+        dir_choose = QFileDialog.getExistingDirectory(self, 'Choose output folder', self.output_folder)
+        self._set_output_folder(dir_choose)
+
+    def _set_output_folder(self, foldername):
+        self.output_folder = foldername
+        self.outputfolder.setText(foldername)
