@@ -40,7 +40,8 @@ class state_singleton(QtCore.QObject):
             'em_gain': 0,
             'cam_cooler_state': '',
             'cam_state': '',
-            'npimage': None
+            'npimage': None,
+            'flowcell_temperature': 0.0
         }
 
         self.updateTimer = QtCore.QTimer()

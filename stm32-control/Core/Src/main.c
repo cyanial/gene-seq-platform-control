@@ -27,7 +27,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
 
+#include "serial.h"
+#include "flowcelltemp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +50,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+extern bool Ready_PCCommand;
+
+extern bool TempControl_Running;
 
 /* USER CODE END PV */
 
@@ -58,6 +64,11 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void User_Init()
+{
+	SerialConnect_Init();
+	FlowcellTemp_Init();
+}
 
 /* USER CODE END 0 */
 
@@ -94,6 +105,7 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+	User_Init();
 
   /* USER CODE END 2 */
 
@@ -104,6 +116,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		if (Ready_PCCommand) {
+			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+			Ready_PCCommand = false;
+			ProcessReceiveCommand();
+		}
+		UpdateTemperature();
+		if (TempControl_Running) {
+			CalcAndUpdatePWMValue();
+		}
+		Send_CurrentTemperatureToPC();
+		
+		HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }

@@ -8,6 +8,7 @@ Main Window
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.uic import loadUi
 
+from .flowcell_window import flowcell_window
 from .camera_window import camera_window
 from .seq_manager import seq_manager
 from .main_state import state_singleton
@@ -15,6 +16,7 @@ from .main_state import state_singleton
 from .camera import camera
 from .stage import stage
 from .microscope import microscope
+from .serial import serial
 
 import logging
 logger = logging.getLogger(__name__)
@@ -62,21 +64,33 @@ class main_window(QtWidgets.QMainWindow):
         # self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker.sig_state_microscope_update.connect(self.updateMicState)
 
+        self.flowcell_thread = QtCore.QThread()
+        self.flowcell_worker = serial()
+        self.flowcell_worker.moveToThread(self.flowcell_thread)
+        self.flowcell_worker.sig_state_flowcell_update.connect(self.updateFlowcellState)
+
         # Create windows
         self.camera_window = camera_window()
         self.camera_window.show()
 
         self.seq_manager = seq_manager()
         self.seq_manager.show()
+
+        self.flowcell_window = flowcell_window()
+        self.flowcell_window.show()
         
         # Thread up
         self.camera_thread.start()
         self.stage_thread.start()
         # self.mic_thread.start()
+        self.flowcell_thread.start()
 
+        # State Request signal
         self.state.sig_update_request.connect(self.camera_worker.updateCameraState)
         self.state.sig_update_request.connect(self.stage_worker.updateStageState)
         self.state.sig_update_request.connect(self.mic_worker.updateMicroscopeState)
+
+        # Flowcell signal
 
         # Microscope signal
         self.tirfToggleButton.clicked.connect(self.handleTirfInsertButton)
@@ -116,16 +130,19 @@ class main_window(QtWidgets.QMainWindow):
         self.camera_worker.notify_all_state()
         self.stage_worker.notify_all_state()
         self.mic_worker.notify_all_state()
+        self.flowcell_worker.notify_all_state()
         
     def __del__(self):
         try:
             self.camera_thread.quit()
             self.stage_thread.quit()
             # self.mic_thread.quit()
+            self.flowcell_thread.quit()
 
             self.camera_thread.wait()
             self.stage_thread.wait()
             # self.mic_thread.wait()
+            self.flowcell_thread.wait()
         except:
             pass
 
@@ -239,3 +256,8 @@ class main_window(QtWidgets.QMainWindow):
             self.tirfPosLabel.setText(str(self.state['tirf_pos']))
         if k == 'tirf_inserted':
             self.tirfStateLabel.setText('Insert' if self.state['tirf_inserted'] else 'Not Insert')
+
+    @QtCore.pyqtSlot(str)
+    def updateFlowcellState(self, k):
+        if k == 'flowcell_temperature':
+            pass
