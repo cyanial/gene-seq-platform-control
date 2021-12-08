@@ -17,6 +17,11 @@ from .serial import serial
 
 class flowcell_window(QDialog):
 
+    sig_temp_on = QtCore.pyqtSignal()
+    sig_temp_off = QtCore.pyqtSignal()
+
+    sig_temp_set = QtCore.pyqtSignal(float)
+
     def __init__(self):
         super().__init__()
         loadUi('gui/flowcell_view.ui', self)
@@ -30,6 +35,14 @@ class flowcell_window(QDialog):
         # Update Signal
         self.flowcell_work.sig_state_flowcell_update.connect(self.upadteStatus)
 
+        # 
+        self.setTemperatureButton.clicked.connect(self.setPIDTemperature)
+        self.sig_temp_set.connect(self.flowcell_work.setup_temperature)
+        self.tempPIDONButton.clicked.connect(self.tempPIDON)
+        self.sig_temp_on.connect(self.flowcell_work.tempPIDON)
+        self.tempPIDOFFButton.clicked.connect(self.tempPIDOFF)
+        self.sig_temp_off.connect(self.flowcell_work.tempPIDOFF)
+
     @QtCore.pyqtSlot()
     def refresh_ports(self):
         self._scan_ports()
@@ -38,7 +51,7 @@ class flowcell_window(QDialog):
     def connect(self):
         if self._is_open():
             self.flowcell_work.stop_receive()
-            self.flowcell_work.close()
+            self.flowcell_work.close() 
             self.connectButton.setText('Connect')
         else:
             try:
@@ -53,6 +66,19 @@ class flowcell_window(QDialog):
     def upadteStatus(self, k):
         if k == 'flowcell_temperature':
             self.temperatureLabel.setText(str(round(self.state['flowcell_temperature'], 2)))
+
+    @QtCore.pyqtSlot()
+    def setPIDTemperature(self):
+        setup_point = float(self.setupTemperature.text())
+        self.sig_temp_set.emit(setup_point)
+
+    @QtCore.pyqtSlot()
+    def tempPIDON(self):
+        self.sig_temp_on.emit()
+
+    @QtCore.pyqtSlot()
+    def tempPIDOFF(self):
+        self.sig_temp_off.emit()
 
     def _is_open(self):
         return self.flowcell_work.is_open();  

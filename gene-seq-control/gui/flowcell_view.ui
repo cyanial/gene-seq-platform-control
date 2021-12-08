@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>311</width>
-    <height>76</height>
+    <height>150</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,6 +48,38 @@
       <widget class="QLabel" name="temperatureLabel">
        <property name="text">
         <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLineEdit" name="setupTemperature"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setTemperatureButton">
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="tempPIDONButton">
+       <property name="text">
+        <string>ON</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="tempPIDOFFButton">
+       <property name="text">
+        <string>OFF</string>
        </property>
       </widget>
      </item>

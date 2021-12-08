@@ -91,6 +91,18 @@ class serial(QtCore.QObject):
     def stop_receive(self):
         self.rcv_thread.quit()
 
+    @QtCore.pyqtSlot(float)
+    def setup_temperature(self, setup_point):
+        self.flowcell.set_temp_pid(setup_point)
+
+    @QtCore.pyqtSlot()
+    def tempPIDON(self):
+        self.flowcell.start_temp_pid()
+
+    @QtCore.pyqtSlot()
+    def tempPIDOFF(self):
+        self.flowcell.stop_temp_pid()
+
     def send_test_command(self):
         self.flowcell._send_command(b'\x55\x00\x00\x00\x00\xaa')
 
