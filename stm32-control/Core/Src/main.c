@@ -54,6 +54,9 @@ extern bool Ready_PCCommand;
 
 extern bool TempControl_Running;
 
+uint8_t tim6_tick = 0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,8 +69,28 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 static void User_Init()
 {
+	HAL_TIM_Base_Start_IT(&htim6);
 	SerialConnect_Init();
 	FlowcellTemp_Init();
+}
+
+static void loop_process_200ms()
+{
+	UpdateTemperature();
+	if (TempControl_Running) {
+		CalcAndUpdatePWMValue();
+	}
+	
+	if (Ready_PCCommand) {
+			Ready_PCCommand = false;
+			ProcessReceiveCommand();
+		}
+}
+
+
+static void loop_process_1000ms()
+{
+	Send_CurrentTemperatureToPC();
 }
 
 /* USER CODE END 0 */
@@ -104,6 +127,7 @@ int main(void)
   MX_SPI3_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 	User_Init();
 
@@ -116,18 +140,39 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		if (Ready_PCCommand) {
-			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-			Ready_PCCommand = false;
-			ProcessReceiveCommand();
-		}
-		UpdateTemperature();
-		if (TempControl_Running) {
-			CalcAndUpdatePWMValue();
-		}
-		Send_CurrentTemperatureToPC();
 		
-		HAL_Delay(100);
+		// Key Check
+		if (HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) == GPIO_PIN_RESET) {
+			HAL_Delay(20);
+			if (HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) == GPIO_PIN_RESET) {
+				// KEY 0 - 
+				if (TempControl_Running) {
+					FlowcellTemp_OFF();
+				} else {
+					FlowcellTemp_ON();
+				}
+				HAL_Delay(200);
+			}
+		}
+		
+		if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
+			HAL_Delay(20);
+			if (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) {
+				// KEY 1 - 
+				HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+				HAL_Delay(200);
+			}
+		}
+		
+		
+		if (tim6_tick % 2 == 0) {
+			loop_process_200ms();
+		}
+		if (tim6_tick == 10) {
+			tim6_tick = 0;
+			loop_process_1000ms();
+		}
+		
   }
   /* USER CODE END 3 */
 }
@@ -177,6 +222,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM6) {
+    tim6_tick++;
+	}
+}
+
 
 /* USER CODE END 4 */
 

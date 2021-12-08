@@ -4,6 +4,7 @@
 #include "serial.h"
 #include "usart.h"
 #include "main.h"
+#include "flowcelltemp.h"
 
 bool Ready_PCCommand = false;
 
@@ -49,6 +50,20 @@ void ProcessReceiveCommand()
 		
 		/* Temperature Control Block */
 		if (rx_buf_pc[1] == 0x00) {
+			if (rx_buf_pc[2] == 0x01) {
+				// Setpoint temperature
+				setup_temp = (float) (rx_buf_pc[3] * 1.0f + rx_buf_pc[4] * 1.0f / 100.0f);
+			}
+			
+			if (rx_buf_pc[2] == 0x02) {
+				// Turn on PID Control
+				FlowcellTemp_ON();
+			}
+			
+			if (rx_buf_pc[2] == 0x03) {
+				// Turn off PID Control
+				FlowcellTemp_OFF();
+			}
 			
 			return;
 		}

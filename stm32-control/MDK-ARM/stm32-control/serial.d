@@ -34,4 +34,4 @@ stm32-control/serial.o: ..\Conn\Src\serial.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
-  ..\Core\Inc\main.h
+  ..\Core\Inc\main.h ..\Control\Inc\flowcelltemp.h
