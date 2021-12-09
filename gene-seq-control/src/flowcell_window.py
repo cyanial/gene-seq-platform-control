@@ -24,6 +24,12 @@ class flowcell_window(QDialog):
 
     sig_valve_pos = QtCore.pyqtSignal(int)
 
+    sig_pump_on_c = QtCore.pyqtSignal()
+    sig_pump_off_c = QtCore.pyqtSignal()
+
+    sig_pump_push_ul = QtCore.pyqtSignal(int)
+    sig_pump_pull_ul = QtCore.pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         loadUi('gui/flowcell_view.ui', self)
@@ -47,6 +53,16 @@ class flowcell_window(QDialog):
 
         self.valveGoButton.clicked.connect(self.valveGoToPos)
         self.sig_valve_pos.connect(self.flowcell_work.valveGoToPos)
+
+        self.onCButton.clicked.connect(self.pump_on_c)
+        self.sig_pump_on_c.connect(self.flowcell_work.pumpONC)
+        self.onOFFButton.clicked.connect(self.pump_off_c)
+        self.sig_pump_off_c.connect(self.flowcell_work.pumpOFFC)
+
+        self.pushButton.clicked.connect(self.pump_push_ul)
+        self.sig_pump_push_ul.connect(self.flowcell_work.pumpPushuL)
+        self.pullButton.clicked.connect(self.pump_pull_ul)
+        self.sig_pump_pull_ul.connect(self.flowcell_work.pumpPulluL)
 
     @QtCore.pyqtSlot()
     def refresh_ports(self):
@@ -73,6 +89,13 @@ class flowcell_window(QDialog):
             self.temperatureLabel.setText(str(round(self.state['flowcell_temperature'], 2)))
         if k == 'flowcell_valve_pos':
             self.valvePosLabel.setText(str(self.state['flowcell_valve_pos']))
+        if k == 'flowcell_pump_valve_pos':
+            show_text = 'none'
+            if self.state['flowcell_pump_valve_pos'] == 2:
+                show_text = 'ON-C'
+            elif self.state['flowcell_pump_valve_pos'] == 4:
+                show_text = 'OFF-C'
+            self.pumpValvePosLabel.setText(show_text)
 
     @QtCore.pyqtSlot()
     def setPIDTemperature(self):
@@ -91,6 +114,24 @@ class flowcell_window(QDialog):
     def valveGoToPos(self):
         pos = int(self.valvePosChoose.currentText())
         self.sig_valve_pos.emit(pos)
+
+    @QtCore.pyqtSlot()
+    def pump_on_c(self):
+        self.sig_pump_on_c.emit()
+
+    @QtCore.pyqtSlot()
+    def pump_off_c(self):
+        self.sig_pump_off_c.emit()
+
+    @QtCore.pyqtSlot()
+    def pump_push_ul(self):
+        ul = int(self.ulToPushOrPullLineEdit.text())
+        self.sig_pump_push_ul.emit(ul)
+
+    @QtCore.pyqtSlot()
+    def pump_pull_ul(self):
+        ul = int(self.ulToPushOrPullLineEdit.text())
+        self.sig_pump_pull_ul.emit(ul)
 
     def _is_open(self):
         return self.flowcell_work.is_open();  

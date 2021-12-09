@@ -32,6 +32,7 @@
 #include "serial.h"
 #include "flowcelltemp.h"
 #include "valve.h"
+#include "pump.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +54,7 @@
 /* USER CODE BEGIN PV */
 extern bool Ready_PCCommand;
 extern bool Ready_ValveMsg;
+extern bool Ready_PumpMsg;
 
 extern bool TempControl_Running;
 uint8_t tim6_tick = 0;
@@ -74,6 +76,7 @@ static void User_Init()
 	SerialConnect_Init();
 	FlowcellTemp_Init();
 	VALVE_Init();
+	Pump_Init();
 }
 
 static void loop_process_200ms()
@@ -93,13 +96,19 @@ static void loop_process_200ms()
 		ProcessValveMsg();
 	}
 
+  Pump_RequestValvePos();
+	if (Ready_PumpMsg) {
+		Ready_PumpMsg = false;
+		ProcessPumpMsg();
+	}
 }
 
 
 static void loop_process_1000ms()
 {
 	//Send_CurrentTemperatureToPC();
-	Send_CurrentValvePos();
+	//Send_CurrentValvePos();
+	Send_CurrentPumpValvePos();
 }
 
 /* USER CODE END 0 */

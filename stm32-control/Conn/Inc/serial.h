@@ -9,4 +9,6 @@ void Send_CurrentTemperatureToPC();
 
 void Send_CurrentValvePos();
 
+void Send_CurrentPumpValvePos();
+
 #endif // SERIAL_H

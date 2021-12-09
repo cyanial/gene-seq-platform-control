@@ -6,11 +6,15 @@
 #include "main.h"
 #include "flowcelltemp.h"
 #include "valve.h"
+#include "pump.h"
 
 bool Ready_PCCommand = false;
 
 extern bool Ready_ValveMsg;
 extern uint8_t valve_pos;
+
+extern bool Ready_PumpMsg;
+extern uint8_t pump_valve_pos;
 
 extern float flowcell_temp;
 extern float setup_temp;
@@ -31,6 +35,7 @@ extern float setup_temp;
 //
 //   Pump           B1 = 0x01
 //                    0x00 - Set Valve Position        (RX)
+//                    0x00 - Send Valve Position       (TX)
 //                    0x01 - Pull xxxx ul              (RX)
 //                    0x02 - Push xxxx ul              (RX)
 //
@@ -77,6 +82,18 @@ void ProcessReceiveCommand()
 		
 		/* Pump Control Block */
 		if (rx_buf_pc[1] == 0x01) {
+			// Set Valve Position
+			if (rx_buf_pc[2] == 0x00) {
+				Pump_MoveToPos(rx_buf_pc[4]);
+			}
+			// Pull
+			if (rx_buf_pc[2] == 0x01) {
+				Pump_PulluL(rx_buf_pc[4] + (rx_buf_pc[3] << 8));
+			}
+			// Push
+			if (rx_buf_pc[2] == 0x02) {
+				Pump_PushuL(rx_buf_pc[4] + (rx_buf_pc[3] << 8));
+			}
 			
 			return;
 		}
@@ -113,6 +130,15 @@ void Send_CurrentValvePos()
 	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
 }
 
+void Send_CurrentPumpValvePos()
+{
+	tx_buf_pc[1] = 0x01;
+	tx_buf_pc[2] = 0x00;
+	tx_buf_pc[3] = 0x00;
+	tx_buf_pc[4] = pump_valve_pos;
+	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
+}
+
 // Receive - Callback
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -122,6 +148,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	} 
 	if (huart->Instance == UART5) {
 		Ready_ValveMsg = true;
+		return;
+	}
+	if (huart->Instance == UART4) {
+		Ready_PumpMsg = true;
 		return;
 	}
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>471</width>
-    <height>150</height>
+    <width>691</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,6 +35,24 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="valvePosTextLabel">
+       <property name="text">
+        <string>Valve Pos</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="valvePosLabel">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="1" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
@@ -54,38 +72,6 @@
     </layout>
    </item>
    <item row="1" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
-     <item>
-      <widget class="QLabel" name="valvePosTextLabel">
-       <property name="text">
-        <string>Valve Pos</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="valvePosLabel">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLineEdit" name="setupTemperature"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="setTemperatureButton">
-       <property name="text">
-        <string>Set</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <widget class="QComboBox" name="valvePosChoose">
@@ -150,6 +136,38 @@
      </item>
     </layout>
    </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLineEdit" name="setupTemperature"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setTemperatureButton">
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="pumpValvePosTextLabel">
+       <property name="text">
+        <string>Pump(v pos)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="pumpValvePosLabel">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="3" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
@@ -163,6 +181,45 @@
       <widget class="QPushButton" name="tempPIDOFFButton">
        <property name="text">
         <string>OFF</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QPushButton" name="onCButton">
+       <property name="text">
+        <string>ON-C</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="onOFFButton">
+       <property name="text">
+        <string>OFF-C</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QLineEdit" name="ulToPushOrPullLineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Push</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pullButton">
+       <property name="text">
+        <string>Pull</string>
        </property>
       </widget>
      </item>
