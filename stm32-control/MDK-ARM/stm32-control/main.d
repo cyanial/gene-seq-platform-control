@@ -35,4 +35,4 @@ stm32-control/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\dma.h ..\Core\Inc\main.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   D:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdbool.h ..\Conn\Inc\serial.h \
-  ..\Control\Inc\flowcelltemp.h
+  ..\Control\Inc\flowcelltemp.h ..\Conn\Inc\valve.h

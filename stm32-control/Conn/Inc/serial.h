@@ -7,4 +7,6 @@ void ProcessReceiveCommand();
 
 void Send_CurrentTemperatureToPC();
 
+void Send_CurrentValvePos();
+
 #endif // SERIAL_H

@@ -5,11 +5,18 @@
 #include "usart.h"
 #include "main.h"
 #include "flowcelltemp.h"
+#include "valve.h"
 
 bool Ready_PCCommand = false;
 
+extern bool Ready_ValveMsg;
+
+extern uint8_t valve_pos;
+// extern bool valve_motor_idle;
+
 extern float flowcell_temp;
 extern float setup_temp;
+
 
 // User-defined protocol STM32 UART <---> PC 
 // B0(STX): 0x55 | (B1)ETX: 0xaa
@@ -31,12 +38,14 @@ extern float setup_temp;
 //
 //   Valve          B1 = 0x02
 //                    0x00 - Set Valve Position        (RX)
+//                    0x00 - Send Valve Position       (TX)
 //  
 // 
 //                
 //                      B0    B1    B2    B3    B4    B5
 uint8_t tx_buf_pc[] = {0x55, 0x00, 0x00, 0x00, 0x00, 0xaa};
 uint8_t rx_buf_pc[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0xaa};
+
 
 
 void SerialConnect_Init()
@@ -76,6 +85,10 @@ void ProcessReceiveCommand()
 		
 		/* Valve Control Block */
 		if (rx_buf_pc[1] == 0x02) {
+			// Set Valve Position
+			if (rx_buf_pc[2] == 0x00) {
+				VALVE_MoveToPos(rx_buf_pc[4]);
+			}
 			return;
 		}
 	}
@@ -84,7 +97,8 @@ void ProcessReceiveCommand()
 void Send_CurrentTemperatureToPC()
 {
 	uint16_t temp = (uint16_t) (flowcell_temp * 100);
-	
+	tx_buf_pc[1] = 0x00;
+	tx_buf_pc[2] = 0x00;
 	tx_buf_pc[3] = (uint8_t) (temp / 100);
 	tx_buf_pc[4] = (uint8_t) (temp % 100);
 	
@@ -92,10 +106,24 @@ void Send_CurrentTemperatureToPC()
 	
 }
 
+void Send_CurrentValvePos()
+{
+	tx_buf_pc[1] = 0x02;
+	tx_buf_pc[2] = 0x00;
+	tx_buf_pc[3] = 0x00;
+	tx_buf_pc[4] = valve_pos;
+	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
+}
+
 // Receive - Callback
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart->Instance == USART1) {
 		Ready_PCCommand = true;
+		return;
+	} 
+	if (huart->Instance == UART5) {
+		Ready_ValveMsg = true;
+		return;
 	}
 }

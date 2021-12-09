@@ -31,6 +31,7 @@
 
 #include "serial.h"
 #include "flowcelltemp.h"
+#include "valve.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,9 +52,9 @@
 
 /* USER CODE BEGIN PV */
 extern bool Ready_PCCommand;
+extern bool Ready_ValveMsg;
 
 extern bool TempControl_Running;
-
 uint8_t tim6_tick = 0;
 
 
@@ -72,6 +73,7 @@ static void User_Init()
 	HAL_TIM_Base_Start_IT(&htim6);
 	SerialConnect_Init();
 	FlowcellTemp_Init();
+	VALVE_Init();
 }
 
 static void loop_process_200ms()
@@ -80,17 +82,25 @@ static void loop_process_200ms()
 	if (TempControl_Running) {
 		CalcAndUpdatePWMValue();
 	}
+
+	VALVE_RequestPos();
+	if (Ready_ValveMsg) {
+		Ready_ValveMsg = false;
+		ProcessValveMsg();
+	}
 	
 	if (Ready_PCCommand) {
-			Ready_PCCommand = false;
-			ProcessReceiveCommand();
-		}
+	  Ready_PCCommand = false;
+		ProcessReceiveCommand();
+	}
+
 }
 
 
 static void loop_process_1000ms()
 {
 	Send_CurrentTemperatureToPC();
+	Send_CurrentValvePos();
 }
 
 /* USER CODE END 0 */
@@ -128,6 +138,8 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   MX_TIM6_Init();
+  MX_UART4_Init();
+  MX_UART5_Init();
   /* USER CODE BEGIN 2 */
 	User_Init();
 

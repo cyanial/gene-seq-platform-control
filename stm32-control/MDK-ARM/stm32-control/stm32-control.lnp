@@ -27,6 +27,8 @@
 "stm32-control\stm32f4xx_hal_uart.o"
 "stm32-control\system_stm32f4xx.o"
 "stm32-control\serial.o"
+"stm32-control\pump.o"
+"stm32-control\valve.o"
 "stm32-control\max31865.o"
 "stm32-control\flowcelltemp.o"
 --strict --scatter "stm32-control\stm32-control.sct"
