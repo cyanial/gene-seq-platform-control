@@ -38,9 +38,15 @@ class rcv_thread(QtCore.QThread):
                 if (rcv_cmd[0] == 0x55 and rcv_cmd[5] == 0xaa):
                     # Temperature
                     if (rcv_cmd[1] == 0x00):
-                        flowcell_temperature = (rcv_cmd[3] + rcv_cmd[4] / 100)
-                        if self._check_is_changed_and_write('flowcell_temperature', flowcell_temperature):
-                            self.update_sig.emit('flowcell_temperature')
+                        if (rcv_cmd[2] == 0x00):
+                            flowcell_temperature = (rcv_cmd[3] + rcv_cmd[4] / 100)
+                            if self._check_is_changed_and_write('flowcell_temperature', flowcell_temperature):
+                                self.update_sig.emit('flowcell_temperature')
+                    # Valve Pos
+                    if (rcv_cmd[1] == 0x02):
+                        if (rcv_cmd[2] == 0x00):
+                            if self._check_is_changed_and_write('flowcell_valve_pos', int(rcv_cmd[4])):
+                                self.update_sig.emit('flowcell_valve_pos')
 
             time.sleep(0.1)
 
@@ -103,8 +109,13 @@ class serial(QtCore.QObject):
     def tempPIDOFF(self):
         self.flowcell.stop_temp_pid()
 
+    @QtCore.pyqtSlot(int)
+    def valveGoToPos(self, pos):
+        self.flowcell.valve_to_pos(pos)
+
     def send_test_command(self):
         self.flowcell._send_command(b'\x55\x00\x00\x00\x00\xaa')
 
     def notify_all_state(self):
         self.sig_state_flowcell_update.emit('flowcell_temperature')
+        self.sig_state_flowcell_update.emit('flowcell_valve_pos')

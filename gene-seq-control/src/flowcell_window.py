@@ -22,6 +22,8 @@ class flowcell_window(QDialog):
 
     sig_temp_set = QtCore.pyqtSignal(float)
 
+    sig_valve_pos = QtCore.pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         loadUi('gui/flowcell_view.ui', self)
@@ -42,6 +44,9 @@ class flowcell_window(QDialog):
         self.sig_temp_on.connect(self.flowcell_work.tempPIDON)
         self.tempPIDOFFButton.clicked.connect(self.tempPIDOFF)
         self.sig_temp_off.connect(self.flowcell_work.tempPIDOFF)
+
+        self.valveGoButton.clicked.connect(self.valveGoToPos)
+        self.sig_valve_pos.connect(self.flowcell_work.valveGoToPos)
 
     @QtCore.pyqtSlot()
     def refresh_ports(self):
@@ -66,6 +71,8 @@ class flowcell_window(QDialog):
     def upadteStatus(self, k):
         if k == 'flowcell_temperature':
             self.temperatureLabel.setText(str(round(self.state['flowcell_temperature'], 2)))
+        if k == 'flowcell_valve_pos':
+            self.valvePosLabel.setText(str(self.state['flowcell_valve_pos']))
 
     @QtCore.pyqtSlot()
     def setPIDTemperature(self):
@@ -79,6 +86,11 @@ class flowcell_window(QDialog):
     @QtCore.pyqtSlot()
     def tempPIDOFF(self):
         self.sig_temp_off.emit()
+
+    @QtCore.pyqtSlot()
+    def valveGoToPos(self):
+        pos = int(self.valvePosChoose.currentText())
+        self.sig_valve_pos.emit(pos)
 
     def _is_open(self):
         return self.flowcell_work.is_open();  
