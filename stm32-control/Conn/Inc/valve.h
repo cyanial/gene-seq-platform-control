@@ -6,7 +6,6 @@
 void VALVE_Init();
 void VALVE_MoveToPos(uint8_t pos);
 void VALVE_RequestPos();
-// void VALVE_RequestMotor();
 
 void ProcessValveMsg();
 

@@ -23,13 +23,11 @@
 static uint8_t tx_buf[] = {0xcc, 0x00, 0x00, 0x00, 0x00, 0xdd, 0x00, 0x00}; 
 static uint8_t rx_buf[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-uint8_t valve_pos = 0;
-// bool valve_motor_idle = true;
+bool Ready_ValveMsg = false;
 
-bool Ready_ValveMsg = true;
 bool request_pos = false;
-// bool request_motor = false;
 
+uint8_t valve_pos = 0;
 
 static void SetTxCheckSum()
 {
@@ -42,19 +40,6 @@ static void SetTxCheckSum()
 	tx_buf[7] = (uint8_t) (checksum >> 8);
 }
 
-//static bool VerifyRxCheckSum()
-//{
-//	uint16_t checksum = 0;
-//	for (int i = 0; i < 6; i++) {
-//		checksum += rx_buf[i];
-//	}
-//	
-//	if (rx_buf[6] == (checksum & 0x00ff) && rx_buf[7] == (checksum >> 8)) {
-//		return true;
-//	}
-//	
-//	return false;
-//}
 
 void VALVE_Init()
 {
@@ -70,6 +55,7 @@ void VALVE_MoveToPos(uint8_t pos)
 	SetTxCheckSum();
 	HAL_UART_Transmit(&huart5, tx_buf, sizeof(tx_buf), 0xff);
 }
+
 void VALVE_RequestPos()
 {
 	tx_buf[2] = 0x3e;
@@ -80,26 +66,11 @@ void VALVE_RequestPos()
 	request_pos = true;
 }
 
-//void VALVE_RequestMotor()
-//{
-//	tx_buf[2] = 0x4a;
-//	tx_buf[3] = 0x00;
-//	tx_buf[4] = 0x00;
-//	SetTxCheckSum();
-//	HAL_UART_Transmit(&huart5, tx_buf, sizeof(tx_buf), 0xff);
-//	request_motor = true;
-//}
-
 void ProcessValveMsg()
 {
 	if (request_pos) {
-		request_pos = false;
+	  request_pos = false;
 		valve_pos = rx_buf[3];
-		return;
 	}
-//	if (request_motor) {
-//		request_motor = false;
-//		valve_motor_idle = (rx_buf[3] == 0x00);
-//		return;
-//	}
 }
+

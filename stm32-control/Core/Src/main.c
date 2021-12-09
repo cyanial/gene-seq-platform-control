@@ -82,16 +82,15 @@ static void loop_process_200ms()
 	if (TempControl_Running) {
 		CalcAndUpdatePWMValue();
 	}
-
-	VALVE_RequestPos();
-	if (Ready_ValveMsg) {
-		Ready_ValveMsg = false;
-		ProcessValveMsg();
-	}
 	
 	if (Ready_PCCommand) {
 	  Ready_PCCommand = false;
 		ProcessReceiveCommand();
+	}
+	VALVE_RequestPos();
+	if (Ready_ValveMsg) {
+		Ready_ValveMsg = false;
+		ProcessValveMsg();
 	}
 
 }
@@ -99,7 +98,7 @@ static void loop_process_200ms()
 
 static void loop_process_1000ms()
 {
-	Send_CurrentTemperatureToPC();
+	//Send_CurrentTemperatureToPC();
 	Send_CurrentValvePos();
 }
 

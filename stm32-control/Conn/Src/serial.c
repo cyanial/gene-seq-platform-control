@@ -10,9 +10,7 @@
 bool Ready_PCCommand = false;
 
 extern bool Ready_ValveMsg;
-
 extern uint8_t valve_pos;
-// extern bool valve_motor_idle;
 
 extern float flowcell_temp;
 extern float setup_temp;
