@@ -96,6 +96,8 @@ class flowcell_window(QDialog):
             elif self.state['flowcell_pump_valve_pos'] == 4:
                 show_text = 'OFF-C'
             self.pumpValvePosLabel.setText(show_text)
+        if k == 'flowcell_pump_pos':
+            self.volumeProgressBar.setValue(int(self.state['flowcell_pump_pos']/120))
 
     @QtCore.pyqtSlot()
     def setPIDTemperature(self):

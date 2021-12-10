@@ -15,6 +15,8 @@ extern uint8_t valve_pos;
 
 extern bool Ready_PumpMsg;
 extern uint8_t pump_valve_pos;
+extern uint8_t pump_pos_l;
+extern uint8_t pump_pos_h;
 
 extern float flowcell_temp;
 extern float setup_temp;
@@ -38,6 +40,7 @@ extern float setup_temp;
 //                    0x00 - Send Valve Position       (TX)
 //                    0x01 - Pull xxxx ul              (RX)
 //                    0x02 - Push xxxx ul              (RX)
+//                    0x03 - Send Pump Position        (TX)
 //
 //   Valve          B1 = 0x02
 //                    0x00 - Set Valve Position        (RX)
@@ -139,6 +142,15 @@ void Send_CurrentPumpValvePos()
 	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
 }
 
+void Send_CurrentPumpPos()
+{
+	tx_buf_pc[1] = 0x01;
+	tx_buf_pc[2] = 0x03;
+	tx_buf_pc[3] = pump_pos_h;
+	tx_buf_pc[4] = pump_pos_l;
+	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
+}
+
 // Receive - Callback
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -151,7 +163,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		return;
 	}
 	if (huart->Instance == UART4) {
-		Ready_PumpMsg = true;
+		//Ready_PumpMsg = true;
+		ProcessPumpMsg();
 		return;
 	}
 }

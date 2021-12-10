@@ -52,6 +52,10 @@ class rcv_thread(QtCore.QThread):
                         if (rcv_cmd[2] == 0x00):
                             if self._check_is_changed_and_write('flowcell_pump_valve_pos', int(rcv_cmd[4])):
                                 self.update_sig.emit('flowcell_pump_valve_pos')
+                        if (rcv_cmd[2] == 0x03):
+                            step_pos = int(rcv_cmd[3] << 8) + int(rcv_cmd[4])
+                            if self._check_is_changed_and_write('flowcell_pump_pos', step_pos):
+                                self.update_sig.emit('flowcell_pump_pos')
 
             time.sleep(0.1)
 
@@ -141,3 +145,4 @@ class serial(QtCore.QObject):
         self.sig_state_flowcell_update.emit('flowcell_temperature')
         self.sig_state_flowcell_update.emit('flowcell_valve_pos')
         self.sig_state_flowcell_update.emit('flowcell_pump_valve_pos')
+        self.sig_state_flowcell_update.emit('flowcell_pump_pos')

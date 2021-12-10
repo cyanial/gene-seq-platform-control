@@ -43,7 +43,8 @@ class state_singleton(QtCore.QObject):
             'npimage': None,
             'flowcell_temperature': 0.0,
             'flowcell_valve_pos': 0,
-            'flowcell_pump_valve_pos': 0
+            'flowcell_pump_valve_pos': 0,
+            'flowcell_pump_pos': 0,
         }
 
         self.updateTimer = QtCore.QTimer()

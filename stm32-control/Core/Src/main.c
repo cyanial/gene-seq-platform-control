@@ -97,18 +97,20 @@ static void loop_process_200ms()
 	}
 
   Pump_RequestValvePos();
-	if (Ready_PumpMsg) {
-		Ready_PumpMsg = false;
-		ProcessPumpMsg();
-	}
+	Pump_RequestPumpPos();
+	
+	
 }
 
+//static void loop_process_500ms()
+//{
+
+//}
 
 static void loop_process_1000ms()
 {
 	//Send_CurrentTemperatureToPC();
-	//Send_CurrentValvePos();
-	Send_CurrentPumpValvePos();
+	Send_CurrentPumpPos();
 }
 
 /* USER CODE END 0 */
@@ -188,6 +190,9 @@ int main(void)
 		if (tim6_tick % 2 == 0) {
 			loop_process_200ms();
 		}
+//		if (tim6_tick % 5 == 0) {
+//			loop_process_500ms();
+//		}
 		if (tim6_tick == 10) {
 			tim6_tick = 0;
 			loop_process_1000ms();

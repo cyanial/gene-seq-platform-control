@@ -71,6 +71,7 @@ void ProcessValveMsg()
 	if (request_pos) {
 	  request_pos = false;
 		valve_pos = rx_buf[3];
+		return;
 	}
 }
 

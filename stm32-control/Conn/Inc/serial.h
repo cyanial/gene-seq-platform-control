@@ -11,4 +11,6 @@ void Send_CurrentValvePos();
 
 void Send_CurrentPumpValvePos();
 
+void Send_CurrentPumpPos();
+
 #endif // SERIAL_H

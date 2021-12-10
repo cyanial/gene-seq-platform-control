@@ -40,11 +40,13 @@ static uint8_t tx_buf[] = {0xcc, 0x00, 0x00, 0x00, 0x00, 0xdd, 0x00, 0x00};
 static uint8_t rx_buf[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 uint8_t pump_valve_pos = 0;
+uint8_t pump_pos_l = 0;
+uint8_t pump_pos_h = 0;
 
 bool Ready_PumpMsg = false;
 
 bool request_valve_pos = false;
-
+bool request_pump_pos = false;
 
 
 static void SetTxCheckSum()
@@ -102,6 +104,16 @@ void Pump_RequestValvePos()
 	request_valve_pos = true;
 }
 
+void Pump_RequestPumpPos()
+{
+	tx_buf[2] = 0x66;
+	tx_buf[3] = 0x00;
+	tx_buf[4] = 0x00;
+	SetTxCheckSum();
+	HAL_UART_Transmit(&huart4, tx_buf, sizeof(tx_buf), 0xff);
+	request_pump_pos = true;
+}
+
 void Pump_PulluL(uint16_t uL)
 {
 	Pump_RunCounterClockwise((uint16_t)(uL*StepsPeruL));
@@ -115,7 +127,14 @@ void Pump_PushuL(uint16_t uL)
 void ProcessPumpMsg()
 {
 	if (request_valve_pos) {
+		request_valve_pos = false;
 		pump_valve_pos = rx_buf[3];
+		return;
+	}
+	if (request_pump_pos) {
+		request_pump_pos = false;
+		pump_pos_l = rx_buf[3];
+		pump_pos_h = rx_buf[4];
 		return;
 	}
 }
