@@ -10,13 +10,12 @@
 
 bool Ready_PCCommand = false;
 
-extern bool Ready_ValveMsg;
 extern uint8_t valve_pos;
 
-extern bool Ready_PumpMsg;
 extern uint8_t pump_valve_pos;
 extern uint8_t pump_pos_l;
 extern uint8_t pump_pos_h;
+extern uint8_t pump_state;
 
 extern float flowcell_temp;
 extern float setup_temp;
@@ -46,11 +45,14 @@ extern float setup_temp;
 //                    0x00 - Set Valve Position        (RX)
 //                    0x00 - Send Valve Position       (TX)
 //  
+//  All In One
 // 
 //                
 //                      B0    B1    B2    B3    B4    B5
 uint8_t tx_buf_pc[] = {0x55, 0x00, 0x00, 0x00, 0x00, 0xaa};
 uint8_t rx_buf_pc[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0xaa};
+
+uint8_t tx_all_in_one[] = {0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xaa};
 
 
 
@@ -151,6 +153,30 @@ void Send_CurrentPumpPos()
 	HAL_UART_Transmit(&huart1, tx_buf_pc, sizeof(tx_buf_pc), 0xff);
 }
 
+void Send_AllState()
+{
+	// B0 0x55
+	// B1 B2 - Temp
+	uint16_t temp = (uint16_t) (flowcell_temp * 100);
+	tx_all_in_one[1] = (uint8_t) (temp / 100);
+	tx_all_in_one[2] = (uint8_t) (temp % 100);
+	
+	// B3 - Valve Pos
+	tx_all_in_one[3] = valve_pos;
+	
+	// B4 - Pump Valve Pos
+	tx_all_in_one[4] = pump_valve_pos;
+	
+	// B5 B6 - Pump Pos
+	tx_all_in_one[5] = pump_pos_h;
+	tx_all_in_one[6] = pump_pos_l;
+	
+	// B7 - Pump State
+	tx_all_in_one[7] = pump_state;
+	
+	HAL_UART_Transmit(&huart1, tx_all_in_one, sizeof(tx_all_in_one), 0xff);
+}
+
 // Receive - Callback
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -159,11 +185,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		return;
 	} 
 	if (huart->Instance == UART5) {
-		Ready_ValveMsg = true;
+		ProcessValveMsg();
 		return;
 	}
 	if (huart->Instance == UART4) {
-		//Ready_PumpMsg = true;
 		ProcessPumpMsg();
 		return;
 	}

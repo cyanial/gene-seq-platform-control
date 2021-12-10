@@ -53,8 +53,6 @@
 
 /* USER CODE BEGIN PV */
 extern bool Ready_PCCommand;
-extern bool Ready_ValveMsg;
-extern bool Ready_PumpMsg;
 
 extern bool TempControl_Running;
 uint8_t tim6_tick = 0;
@@ -91,15 +89,10 @@ static void loop_process_200ms()
 		ProcessReceiveCommand();
 	}
 	VALVE_RequestPos();
-	if (Ready_ValveMsg) {
-		Ready_ValveMsg = false;
-		ProcessValveMsg();
-	}
-
   Pump_RequestValvePos();
 	Pump_RequestPumpPos();
-	
-	
+	Pump_RequestPumpState();
+
 }
 
 //static void loop_process_500ms()
@@ -107,10 +100,9 @@ static void loop_process_200ms()
 
 //}
 
-static void loop_process_1000ms()
+static void loop_process_500ms()
 {
-	//Send_CurrentTemperatureToPC();
-	Send_CurrentPumpPos();
+  Send_AllState();
 }
 
 /* USER CODE END 0 */
@@ -193,9 +185,9 @@ int main(void)
 //		if (tim6_tick % 5 == 0) {
 //			loop_process_500ms();
 //		}
-		if (tim6_tick == 10) {
+		if (tim6_tick == 5) {
 			tim6_tick = 0;
-			loop_process_1000ms();
+			loop_process_500ms();
 		}
 		
   }

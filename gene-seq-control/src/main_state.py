@@ -45,6 +45,7 @@ class state_singleton(QtCore.QObject):
             'flowcell_valve_pos': 0,
             'flowcell_pump_valve_pos': 0,
             'flowcell_pump_pos': 0,
+            'flowcell_pump_state': 0,
         }
 
         self.updateTimer = QtCore.QTimer()

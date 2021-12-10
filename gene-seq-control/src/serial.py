@@ -33,29 +33,44 @@ class rcv_thread(QtCore.QThread):
             count = self.ser.inWaiting()
             if count != 0:
                 rcv_cmd = self.ser.read(count)
-                if count != 6:
+                if count != 9:
                     continue
-                if (rcv_cmd[0] == 0x55 and rcv_cmd[5] == 0xaa):
+                if (rcv_cmd[0] == 0x55 and rcv_cmd[8] == 0xaa):
                     # Temperature
-                    if (rcv_cmd[1] == 0x00):
-                        if (rcv_cmd[2] == 0x00):
-                            flowcell_temperature = (rcv_cmd[3] + rcv_cmd[4] / 100)
-                            if self._check_is_changed_and_write('flowcell_temperature', flowcell_temperature):
-                                self.update_sig.emit('flowcell_temperature')
+                    if self._check_is_changed_and_write('flowcell_temperature', (rcv_cmd[1] + rcv_cmd[2] / 100)):
+                        self.update_sig.emit('flowcell_temperature')
                     # Valve Pos
-                    if (rcv_cmd[1] == 0x02):
-                        if (rcv_cmd[2] == 0x00):
-                            if self._check_is_changed_and_write('flowcell_valve_pos', int(rcv_cmd[4])):
-                                self.update_sig.emit('flowcell_valve_pos')
+                    if self._check_is_changed_and_write('flowcell_valve_pos', int(rcv_cmd[3])):
+                        self.update_sig.emit('flowcell_valve_pos')
                     # Pump Valve Pos
-                    if (rcv_cmd[1] == 0x01):
-                        if (rcv_cmd[2] == 0x00):
-                            if self._check_is_changed_and_write('flowcell_pump_valve_pos', int(rcv_cmd[4])):
-                                self.update_sig.emit('flowcell_pump_valve_pos')
-                        if (rcv_cmd[2] == 0x03):
-                            step_pos = int(rcv_cmd[3] << 8) + int(rcv_cmd[4])
-                            if self._check_is_changed_and_write('flowcell_pump_pos', step_pos):
-                                self.update_sig.emit('flowcell_pump_pos')
+                    if self._check_is_changed_and_write('flowcell_pump_valve_pos', int(rcv_cmd[4])):
+                        self.update_sig.emit('flowcell_pump_valve_pos')
+                    # Pump Pos
+                    if self._check_is_changed_and_write('flowcell_pump_pos', int(rcv_cmd[5] << 8) + int(rcv_cmd[6])):
+                        self.update_sig.emit('flowcell_pump_pos')
+                    # Pump State
+                    if self._check_is_changed_and_write('flowcell_pump_state', int (rcv_cmd[7])):
+                        self.update_sig.emit('flowcell_pump_state')
+                #     # Temperature
+                #     if (rcv_cmd[1] == 0x00):
+                #         if (rcv_cmd[2] == 0x00):
+                #             flowcell_temperature = (rcv_cmd[3] + rcv_cmd[4] / 100)
+                #             if self._check_is_changed_and_write('flowcell_temperature', flowcell_temperature):
+                #                 self.update_sig.emit('flowcell_temperature')
+                #     # Valve Pos
+                #     if (rcv_cmd[1] == 0x02):
+                #         if (rcv_cmd[2] == 0x00):
+                #             if self._check_is_changed_and_write('flowcell_valve_pos', int(rcv_cmd[4])):
+                #                 self.update_sig.emit('flowcell_valve_pos')
+                #     # Pump Valve Pos
+                #     if (rcv_cmd[1] == 0x01):
+                #         if (rcv_cmd[2] == 0x00):
+                #             if self._check_is_changed_and_write('flowcell_pump_valve_pos', int(rcv_cmd[4])):
+                #                 self.update_sig.emit('flowcell_pump_valve_pos')
+                #         if (rcv_cmd[2] == 0x03):
+                #             step_pos = int(rcv_cmd[3] << 8) + int(rcv_cmd[4])
+                #             if self._check_is_changed_and_write('flowcell_pump_pos', step_pos):
+                #                 self.update_sig.emit('flowcell_pump_pos')
 
             time.sleep(0.1)
 
@@ -146,3 +161,4 @@ class serial(QtCore.QObject):
         self.sig_state_flowcell_update.emit('flowcell_valve_pos')
         self.sig_state_flowcell_update.emit('flowcell_pump_valve_pos')
         self.sig_state_flowcell_update.emit('flowcell_pump_pos')
+        self.sig_state_flowcell_update.emit('flowcell_pump_state')

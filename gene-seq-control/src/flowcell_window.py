@@ -98,6 +98,8 @@ class flowcell_window(QDialog):
             self.pumpValvePosLabel.setText(show_text)
         if k == 'flowcell_pump_pos':
             self.volumeProgressBar.setValue(int(self.state['flowcell_pump_pos']/120))
+        if k == 'flowcell_pump_state':
+            self.pumpStateLabel.setText('pump - running' if self.state['flowcell_pump_state'] ==4 else 'pump - idle')
 
     @QtCore.pyqtSlot()
     def setPIDTemperature(self):

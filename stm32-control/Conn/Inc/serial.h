@@ -13,4 +13,6 @@ void Send_CurrentPumpValvePos();
 
 void Send_CurrentPumpPos();
 
+void Send_AllState();
+
 #endif // SERIAL_H
