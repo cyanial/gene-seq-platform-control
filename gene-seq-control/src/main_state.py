@@ -32,6 +32,7 @@ class state_singleton(QtCore.QObject):
             'y_pos': 0,
             'pfs_pos': 0,
             'tirf_pos': 0,
+            'ftblock_pos': 0,
             'homed': False,
             'enabled': False,
             'tirf_inserted': False,

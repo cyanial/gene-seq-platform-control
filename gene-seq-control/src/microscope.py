@@ -42,6 +42,11 @@ class microscope(QtCore.QObject):
         pass
 
     @QtCore.pyqtSlot()
+    def get_ftblock_pos(self):
+        if self._check_is_changed_and_write('ftblock_pos', self.mic.ftblock_pos()):
+            self.sig_state_microscope_update.emit('ftblock_pos')
+
+    @QtCore.pyqtSlot()
     def get_z_pos(self):
         if self._check_is_changed_and_write('z_pos', self.mic.zPos()):
             self.sig_state_microscope_update.emit('z_pos')
@@ -67,6 +72,7 @@ class microscope(QtCore.QObject):
         self.get_pfs_pos()
         self.get_tirf_pos()
         self.get_tirf_inserted()
+        self.get_ftblock_pos()
 
     @QtCore.pyqtSlot()
     def insertTirf(self):
@@ -79,6 +85,22 @@ class microscope(QtCore.QObject):
     @QtCore.pyqtSlot(int)
     def tirfStep(self, step):
         self.mic.tirfMoveRealtive(step)
+
+    @QtCore.pyqtSlot(int)
+    def openShutter(self, shutterID):
+        self.mic.shutterOpenAndCloseOthers(shutterID)
+
+    @QtCore.pyqtSlot()
+    def closeAllShutter(self):
+        self.mic.closeAllShutter()
+
+    @QtCore.pyqtSlot()
+    def filterBlockForward(self):
+        self.mic.ftblock_forward()
+
+    @QtCore.pyqtSlot()
+    def filterBlockReverse(self):
+        self.mic.ftblock_reverse()
 
     def zpos_to_um(self, zpos):
         return self.mic.zpos_to_um(zpos)
@@ -94,3 +116,4 @@ class microscope(QtCore.QObject):
         self.sig_state_microscope_update.emit('pfs_pos')
         self.sig_state_microscope_update.emit('tirf_pos')
         self.sig_state_microscope_update.emit('tirf_inserted')
+        self.sig_state_microscope_update.emit('ftblock_pos')

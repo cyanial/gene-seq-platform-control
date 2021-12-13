@@ -153,6 +153,20 @@ class serial(QtCore.QObject):
     def pumpPulluL(self, ul):
         self.flowcell.pump_pull_ul(ul)
 
+    @QtCore.pyqtSlot()
+    def pump_push_all(self):
+        # To-Do:
+        # Implement in stm32_serial to prevent blocking UI
+        self.pumpOFFC()
+        while self.state['flowcell_pump_valve_pos'] != 4:
+            print('Wait pump')
+        self.pumpPushuL(int(self.state['flowcell_pump_pos'] * 0.21))
+        time.sleep(1)
+        while self.state['flowcell_pump_state'] != 0:
+            print('Wait Pump Push')
+
+        print('Done')
+
     def send_test_command(self):
         self.flowcell._send_command(b'\x55\x00\x00\x00\x00\xaa')
 

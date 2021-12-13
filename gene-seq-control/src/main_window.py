@@ -70,13 +70,19 @@ class main_window(QtWidgets.QMainWindow):
         self.flowcell_worker.sig_state_flowcell_update.connect(self.updateFlowcellState)
 
         # Create windows
+        self.camera_window_thread = QtCore.QThread()
         self.camera_window = camera_window()
+        self.camera_window.moveToThread(self.camera_window_thread)
         self.camera_window.show()
 
+        self.seq_manager_thread = QtCore.QThread()
         self.seq_manager = seq_manager()
+        self.seq_manager.moveToThread(self.seq_manager_thread)
         self.seq_manager.show()
 
+        self.flowcell_window_thread = QtCore.QThread()
         self.flowcell_window = flowcell_window()
+        self.flowcell_window.moveToThread(self.flowcell_window_thread)
         self.flowcell_window.show()
         
         # Thread up
@@ -84,6 +90,9 @@ class main_window(QtWidgets.QMainWindow):
         self.stage_thread.start()
         # self.mic_thread.start()
         self.flowcell_thread.start()
+        self.camera_window_thread.start()
+        self.seq_manager_thread.start()
+        self.flowcell_window_thread.start()
 
         # State Request signal
         self.state.sig_update_request.connect(self.camera_worker.updateCameraState)
@@ -138,11 +147,17 @@ class main_window(QtWidgets.QMainWindow):
             self.stage_thread.quit()
             # self.mic_thread.quit()
             self.flowcell_thread.quit()
+            self.camera_window_thread.quit()
+            self.seq_manager_thread.quit()
+            self.flowcell_window_thread.quit()
 
             self.camera_thread.wait()
             self.stage_thread.wait()
             # self.mic_thread.wait()
             self.flowcell_thread.wait()
+            self.camera_window_thread.wait()
+            self.seq_manager_thread.wait()
+            self.flowcell_window_thread.wait()
         except:
             pass
 
@@ -256,6 +271,8 @@ class main_window(QtWidgets.QMainWindow):
             self.tirfPosLabel.setText(str(self.state['tirf_pos']))
         if k == 'tirf_inserted':
             self.tirfStateLabel.setText('Insert' if self.state['tirf_inserted'] else 'Not Insert')
+        if k == 'ftblock_pos':
+            print('ft_block: ', self.state['ftblock_pos'])
 
     @QtCore.pyqtSlot(str)
     def updateFlowcellState(self, k):

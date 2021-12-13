@@ -22,7 +22,11 @@ class nikonTi():
         self.ZDrive = self.instance.ZDrive
         self.TIRF = self.instance.TIRF
         self.PFS = self.instance.PFS
-        # self.EpiShutter = self.instance.EpiShutter
+        self.FilterBlocks = self.instance.FilterBlockCassette1
+        
+        # Acquire filterblocks parameters
+        self.ftblocks_lowerlimit = int(self.FilterBlocks.LowerLimit)
+        self.ftblocks_upperlimit = int(self.FilterBlocks.UpperLimit)
 
         # Acquire zdrive parameters
         self.zdrive_lowerlimit = int(self.ZDrive.LowerLimit)
@@ -58,6 +62,15 @@ class nikonTi():
 
     def available(self):
         return self._connected
+
+    def ftblock_pos(self):
+        return int(self.FilterBlocks.Position)
+
+    def ftblock_forward(self):
+        self.FilterBlocks.Forward()
+
+    def ftblock_reverse(self):
+        self.FilterBlocks.Reverse()
 
     def zescape(self):
         """ZDrive Escape"""
@@ -198,6 +211,38 @@ class nikonTi():
         else:
             self.LU4ALaser.IsOpenShutter = status | 1 << 4
 
+    def shutterOpenAndCloseOthers(self, shutterID):
+        if shutterID == 1:
+            self.shutterMain(True)
+            self.shutter1(True)
+            self.shutter2(False)
+            self.shutter3(False)
+            self.shutter4(False)
+        elif shutterID == 2:
+            self.shutterMain(True)
+            self.shutter1(False)
+            self.shutter2(True)
+            self.shutter3(False)
+            self.shutter4(False)
+        elif shutterID == 3:
+            self.shutterMain(True)
+            self.shutter1(False)
+            self.shutter2(False)
+            self.shutter3(True)
+            self.shutter4(False)
+        elif shutterID == 4:
+            self.shutterMain(True)
+            self.shutter1(False)
+            self.shutter2(False)
+            self.shutter3(False)
+            self.shutter4(True)
+
+    def closeAllShutter(self):
+        self.shutterMain(False)
+        self.shutter1(False)
+        self.shutter2(False)
+        self.shutter3(False)
+        self.shutter4(False)
 
 if __name__ == "__main__":
     mic = nikonTi()

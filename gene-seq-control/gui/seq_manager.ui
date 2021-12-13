@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>487</width>
+    <width>566</width>
     <height>177</height>
    </rect>
   </property>
@@ -73,7 +73,14 @@
         </size>
        </property>
        <property name="text">
-        <string>Task Name</string>
+        <string>State</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="seqStateLabel">
+       <property name="text">
+        <string>TextLabel</string>
        </property>
       </widget>
      </item>
