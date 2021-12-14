@@ -169,12 +169,12 @@ class seq_manager(QDialog):
         # Open Shutter
         # Imaging - - - -
         for i in range(1, 5):
-            while self.state['ftblock_pos'] != i:
-                if self.state['ftblock_pos'] > i:
-                    self.mic.filterBlockReverse()
-                else:
-                    self.mic.filterBlockForward()
-                QtCore.QThread.sleep(1)
+            # while self.state['ftblock_pos'] != i:
+            #     if self.state['ftblock_pos'] > i:
+            #         self.mic.filterBlockReverse()
+            #     else:
+            #         self.mic.filterBlockForward()
+            #     QtCore.QThread.sleep(1)
             self.mic.openShutter(i)
             self.camera.startAcquisition()
             print(f"Imaging: Shutter{i} - pos: {self.idx_x}, {self.idx_y}")
@@ -185,7 +185,7 @@ class seq_manager(QDialog):
             self.state['npimage'] = self.camera.camera.acquireData()
             time.sleep(1)
             # Save Files to output folder (filename)
-            tifffile.imsave(self.output_folder + f'\\shutter{i}_pos_{self.idx_x}_{self.idx_y}_timestr.tif', self.state['npimage'])
+            tifffile.imsave(self.output_folder + f'\\pos_{self.idx_x}_{self.idx_y}_shutter{i}.tif', self.state['npimage'])
 
         self.idx_x = self.idx_x + 1
         if self.idx_x == self.idx_x_sum:

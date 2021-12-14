@@ -59,9 +59,11 @@ class main_window(QtWidgets.QMainWindow):
         self.stage_worker.moveToThread(self.stage_thread)
         self.stage_worker.sig_state_stage_update.connect(self.updateStageState)
 
-        # self.mic_thread = QtCore.QThread()
+        self.mic_thread = QtCore.QThread()
+        self.camera_thread.start()
+        self.mic_worker = QtCore.QObject()
+        self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker = microscope()
-        # self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker.sig_state_microscope_update.connect(self.updateMicState)
 
         self.flowcell_thread = QtCore.QThread()
@@ -70,19 +72,13 @@ class main_window(QtWidgets.QMainWindow):
         self.flowcell_worker.sig_state_flowcell_update.connect(self.updateFlowcellState)
 
         # Create windows
-        self.camera_window_thread = QtCore.QThread()
         self.camera_window = camera_window()
-        self.camera_window.moveToThread(self.camera_window_thread)
         self.camera_window.show()
 
-        self.seq_manager_thread = QtCore.QThread()
         self.seq_manager = seq_manager()
-        self.seq_manager.moveToThread(self.seq_manager_thread)
         self.seq_manager.show()
 
-        self.flowcell_window_thread = QtCore.QThread()
         self.flowcell_window = flowcell_window()
-        self.flowcell_window.moveToThread(self.flowcell_window_thread)
         self.flowcell_window.show()
         
         # Thread up
@@ -90,9 +86,7 @@ class main_window(QtWidgets.QMainWindow):
         self.stage_thread.start()
         # self.mic_thread.start()
         self.flowcell_thread.start()
-        self.camera_window_thread.start()
-        self.seq_manager_thread.start()
-        self.flowcell_window_thread.start()
+
 
         # State Request signal
         self.state.sig_update_request.connect(self.camera_worker.updateCameraState)
@@ -145,19 +139,13 @@ class main_window(QtWidgets.QMainWindow):
         try:
             self.camera_thread.quit()
             self.stage_thread.quit()
-            # self.mic_thread.quit()
+            self.mic_thread.quit()
             self.flowcell_thread.quit()
-            self.camera_window_thread.quit()
-            self.seq_manager_thread.quit()
-            self.flowcell_window_thread.quit()
 
             self.camera_thread.wait()
             self.stage_thread.wait()
-            # self.mic_thread.wait()
+            self.mic_thread.wait()
             self.flowcell_thread.wait()
-            self.camera_window_thread.wait()
-            self.seq_manager_thread.wait()
-            self.flowcell_window_thread.wait()
         except:
             pass
 
