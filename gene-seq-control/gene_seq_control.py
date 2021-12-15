@@ -9,14 +9,11 @@ from PyQt5 import QtWidgets
 
 from src.main_window import main_window
 
-
-
-
 timestr = time.strftime("%Y%m%d-%H%M%S")
 logging_filename = timestr + '.log'
 logging.basicConfig(filename='log/' + logging_filename,
         level=logging.INFO, 
-        format='%(asctime)s-%(levelname)s-%(name)s-%(message)s')
+        format='%(asctime)s-%(name)s-%(threadName)s: [%(levelname)s] %(message)s')
 logger = logging.getLogger(__name__)
 logger.info('app start')
 

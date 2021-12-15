@@ -6,8 +6,8 @@ Python bind andor sdk 2.x
 To-do List:
 1. [x] PreAmp - set 5x
 2. [x] EM Gain - a range not advanced mode
-3. [  ] Snap Mode
-4. [  ] Live Mode
+3. [x] Snap Mode
+4. [x] Live Mode
 5. [  ] ...
 
 """

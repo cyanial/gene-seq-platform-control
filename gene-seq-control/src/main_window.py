@@ -5,6 +5,7 @@ Main Window
 """
 
 
+from os import name
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.uic import loadUi
 
@@ -45,25 +46,25 @@ class main_window(QtWidgets.QMainWindow):
         super().__init__()
 
         loadUi('gui/main_view.ui', self)
-
+        logger.debug('create main window')
         self.state = state_singleton()
 
         # Thread create
+        logger.debug('create camera thread')
         self.camera_thread = QtCore.QThread()
         self.camera_worker = camera()
         self.camera_worker.moveToThread(self.camera_thread)
         self.camera_worker.sig_state_camera_update.connect(self.updateCameraState)
 
+        logger.debug('create stage thread')
         self.stage_thread = QtCore.QThread()
         self.stage_worker = stage()
         self.stage_worker.moveToThread(self.stage_thread)
         self.stage_worker.sig_state_stage_update.connect(self.updateStageState)
 
         self.mic_thread = QtCore.QThread()
-        self.camera_thread.start()
-        self.mic_worker = QtCore.QObject()
-        self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker = microscope()
+        # self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker.sig_state_microscope_update.connect(self.updateMicState)
 
         self.flowcell_thread = QtCore.QThread()
@@ -80,13 +81,6 @@ class main_window(QtWidgets.QMainWindow):
 
         self.flowcell_window = flowcell_window()
         self.flowcell_window.show()
-        
-        # Thread up
-        self.camera_thread.start()
-        self.stage_thread.start()
-        # self.mic_thread.start()
-        self.flowcell_thread.start()
-
 
         # State Request signal
         self.state.sig_update_request.connect(self.camera_worker.updateCameraState)
@@ -130,6 +124,12 @@ class main_window(QtWidgets.QMainWindow):
         self.setEMGainButton.clicked.connect(self.setEMGain)
         self.sig_set_emgain.connect(self.camera_worker.setEMGain)
 
+        # Thread up
+        self.camera_thread.start()
+        self.stage_thread.start()
+        self.mic_thread.start()
+        self.flowcell_thread.start()
+
         self.camera_worker.notify_all_state()
         self.stage_worker.notify_all_state()
         self.mic_worker.notify_all_state()
@@ -151,6 +151,8 @@ class main_window(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def handleEnable(self):
+        logger.debug('handle stage enable button')
+        logger.info('handle stage enable/disable - signal')
         if self.state['enabled']:
             self.enableStageButton.setText('Enable')
             self.sig_stage_disable.emit()
@@ -160,67 +162,69 @@ class main_window(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def setEMGain(self):
-        logger.info('Set EM Gain')
+        logger.info('set camera em gain - signal')
         gain = int(self.emGainLineEdit.text())
         self.sig_set_emgain.emit(gain)
 
     @QtCore.pyqtSlot()
     def setCoolerTemperature(self):
-        logger.info('Set Cooler Temperature')
+        logger.info('set camera temperature - signal')
         temp = int(self.cameraTemperatureLineEdit.text())
         self.sig_set_coolertemperature.emit(temp)
 
     @QtCore.pyqtSlot()
     def setExposureTime(self):
-        logger.info('Set exposure time')
+        logger.info('set camera exposure time - signal')
         sec = float(self.exposureTimeLineEdit.text())
         self.sig_set_exposuretime.emit(sec)
 
     @QtCore.pyqtSlot()
     def tirfPosUp(self):
-        logger.info('Tirf Pos up')
+        logger.info('move mic tirf pos up - signal')
         step = int(self.tirfStepLineEdit.text())
         self.sig_mic_tirf_step.emit(step)
 
     @QtCore.pyqtSlot()
     def tirfPosDown(self):
-        logger.info('Tirf Pos donw')
+        logger.info('move mic tirf pos down - signal')
         step = int(self.tirfStepLineEdit.text())
         self.sig_mic_tirf_step.emit(-1 * step)
 
     @QtCore.pyqtSlot()
     def stageMoveAbsolute(self):
-        logger.info('Stage Move absolute')
+        logger.info('move stage x, y channel - signal')
         x = float(self.xPosInputLabel.text())
         y = float(self.yPosInputLabel.text())
         self.sig_stage_moveabsolute.emit(x, y)
 
     @QtCore.pyqtSlot()
     def stageXStepUp(self):
-        logger.info('Stage x step up')
+        logger.info('move stage x step up - signal')
         step = float(self.stepInputLabel.text())
         self.sig_stage_xstep.emit(step)
 
     @QtCore.pyqtSlot()
     def stageXStepDown(self):
-        logger.info('Stage x step down')
+        logger.info('move stage x step down - signal')
         step = float(self.stepInputLabel.text())
         self.sig_stage_xstep.emit(-1 * step)
 
     @QtCore.pyqtSlot()
     def stageYStepUp(self):
-        logger.info('Stage y step up')
+        logger.info('move stage y step up - signal')
         step = float(self.stepInputLabel.text())
         self.sig_stage_ystep.emit(step)
 
     @QtCore.pyqtSlot()
     def stageYStepDown(self):
-        logger.info('Stage y step down')
+        logger.info('move stage y step down - signal')
         step = float(self.stepInputLabel.text())
         self.sig_stage_ystep.emit(-1 * step)
 
     @QtCore.pyqtSlot()
     def handleTirfInsertButton(self):
+        logger.debug('handle tirf ')
+        logger.info('handle mic tirf insert/extract - signal')
         if self.state['tirf_inserted']:
             self.sig_mic_tirf_extract.emit()
         else:

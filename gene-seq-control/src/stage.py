@@ -30,6 +30,8 @@ class stage(QtCore.QObject):
             return
         super().__init__()
 
+        logger.debug('create stage object')
+
         self.stage = Kinesis_Stage()
 
         self.state = state_singleton()
@@ -41,54 +43,65 @@ class stage(QtCore.QObject):
 
     @QtCore.pyqtSlot()    
     def get_x_pos(self):
+        # logger.info('get statge x pos')
         if self._check_is_changed_and_write('x_pos', self.stage.getXpos()):
             self.sig_state_stage_update.emit('x_pos')
 
     @QtCore.pyqtSlot()
     def get_y_pos(self):
+        # logger.info('get stage y pos')
         if self._check_is_changed_and_write('y_pos', self.stage.getYpos()):
             self.sig_state_stage_update.emit('y_pos')
 
     @QtCore.pyqtSlot()
     def get_homed(self):
+        # logger.info('get stage homed state')
         if self._check_is_changed_and_write('homed', self.stage.isHomed()):
             self.sig_state_stage_update.emit('homed')
 
     @QtCore.pyqtSlot()
     def get_enabled(self):
+        # logger.info('get stage enabled state')
         if self._check_is_changed_and_write('enabled', self.stage.isEnable()):
             self.sig_state_stage_update.emit('enabled')
 
     @QtCore.pyqtSlot()
-    def updateStageState(self):
-        self.get_x_pos()
-        self.get_y_pos()
-        self.get_homed()
-        self.get_enabled()
-
-    @QtCore.pyqtSlot()
     def enable(self):
+        logger.info('enable stage channel')
         self.stage.enable()
 
     @QtCore.pyqtSlot()
     def disable(self):
+        logger.info('disable stage channel')
         self.stage.disable()
 
     @QtCore.pyqtSlot()
     def home(self):
+        logger.info('start stage home')
         self.stage.home()
 
     @QtCore.pyqtSlot(float, float)
     def moveAbsolute(self, x, y):
+        logger.info(f'stage move to f{x},{y} (mm)')
         self.stage.moveAbs_mm(x, y)
 
     @QtCore.pyqtSlot(float)
     def stepX(self, step):
+        logger.info(f'stage x move {step} step(s)')
         self.stage.moveXRel_mm(step)
 
     @QtCore.pyqtSlot(float)
     def stepY(self, step):
+        logger.info(f'stage y move {step} step(s)')
         self.stage.moveYRel_mm(step)
+
+    @QtCore.pyqtSlot()
+    def updateStageState(self):
+        # logger.info('update stage state')
+        self.get_x_pos()
+        self.get_y_pos()
+        self.get_homed()
+        self.get_enabled()
 
     def xpos_to_mm(self, xpos):
         return self.stage.xpos_to_mm(xpos)

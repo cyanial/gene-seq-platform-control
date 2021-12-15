@@ -49,14 +49,20 @@ class state_singleton(QtCore.QObject):
             'flowcell_pump_state': 0,
         }
 
+        self.mux = QtCore.QMutex()
+
         self.updateTimer = QtCore.QTimer()
         self.updateTimer.timeout.connect(self.sig_update_request.emit)
         self.updateTimer.start(200)
 
         self._initialized = True
 
+    # To-Do: implement in mutex [x]
+
     def __getitem__(self, k):
         return self._state[k]
 
     def __setitem__(self, k, v):
+        self.mux.lock()
         self._state[k] = v
+        self.mux.unlock()
