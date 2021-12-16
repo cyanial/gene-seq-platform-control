@@ -140,22 +140,21 @@ class seq_task(QtCore.QThread):
         y_len = len(seq_state['seq_y_pos'])
         for x in range(x_len):
             for y in range(y_len):
-                print('cur:', x+x_len*y, 'max:', (x_len-1)*(y_len-1))
-                self.sig_update_task_progress_bar.emit(x+x_len*y, (x_len-1)*(y_len-1))
+                self.sig_update_task_progress_bar.emit(y+y_len*x, x_len*y_len-1)
                 self._update_task_state(f'imaging: stage move to ({x},{y})')
                 self.stage.moveAbsolute(seq_state['seq_x_pos'][x], seq_state['seq_y_pos'][y])
                 time.sleep(1.5)
                 # A C T G
                 # Choose Filter -> Open Shutter -> Imaging -> Close Shutter -> Save Image
                 for i in range(1, 5):
-                    while self.state['ftblock_pos'] != i+1:
-                        self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i+1}')
-                        self.sig_mic_filter_block_move.emit(i+1)
+                    while self.state['ftblock_pos'] != i:
+                        self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i}')
+                        self.sig_mic_filter_block_move.emit(i)
                         time.sleep(1)
-                    self._update_task_state(f'imaging: ({x},{y},{i}) open shutter {i}')
+                    self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i}')
                     self.sig_mic_shutter_open.emit(i)
                     self.camera.startAcquisition()
-                    self._update_task_state(f'Imaging: ({x},{y},{i}) ......')
+                    self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i} ......')
                     time.sleep(self.state['exposure_time'])
                     while self.state['cam_state'] != 'IDLE':
                         pass
