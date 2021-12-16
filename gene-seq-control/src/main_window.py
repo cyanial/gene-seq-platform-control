@@ -266,7 +266,8 @@ class main_window(QtWidgets.QMainWindow):
         if k == 'tirf_inserted':
             self.tirfStateLabel.setText('Insert' if self.state['tirf_inserted'] else 'Not Insert')
         if k == 'ftblock_pos':
-            print('ft_block: ', self.state['ftblock_pos'])
+            pass
+            # print('ft_block: ', self.state['ftblock_pos'])
 
     @QtCore.pyqtSlot(str)
     def updateFlowcellState(self, k):
