@@ -257,3 +257,6 @@ dkms.conf
 *.exe
 *.out
 *.app
+
+# Output Folder
+out
