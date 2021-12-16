@@ -62,11 +62,13 @@ class main_window(QtWidgets.QMainWindow):
         self.stage_worker.moveToThread(self.stage_thread)
         self.stage_worker.sig_state_stage_update.connect(self.updateStageState)
 
+        logger.debug('create microscope thread')
         self.mic_thread = QtCore.QThread()
         self.mic_worker = microscope()
         # self.mic_worker.moveToThread(self.mic_thread)
         self.mic_worker.sig_state_microscope_update.connect(self.updateMicState)
 
+        logger.debug('create flowcell thread')
         self.flowcell_thread = QtCore.QThread()
         self.flowcell_worker = serial()
         self.flowcell_worker.moveToThread(self.flowcell_thread)
@@ -127,8 +129,8 @@ class main_window(QtWidgets.QMainWindow):
         # Thread up
         self.camera_thread.start()
         self.stage_thread.start()
-        self.mic_thread.start()
         self.flowcell_thread.start()
+        self.mic_thread.start()
 
         self.camera_worker.notify_all_state()
         self.stage_worker.notify_all_state()
@@ -139,13 +141,13 @@ class main_window(QtWidgets.QMainWindow):
         try:
             self.camera_thread.quit()
             self.stage_thread.quit()
-            self.mic_thread.quit()
             self.flowcell_thread.quit()
+            self.mic_thread.quit()
 
             self.camera_thread.wait()
             self.stage_thread.wait()
-            self.mic_thread.wait()
             self.flowcell_thread.wait()
+            self.mic_thread.wait()
         except:
             pass
 

@@ -66,6 +66,11 @@ class nikonTi():
     def ftblock_pos(self):
         return int(self.FilterBlocks.Position)
 
+    def ftblock_move_to_pos(self, pos):
+        if pos < self.ftblocks_lowerlimit or pos > self.ftblocks_upperlimit:
+            return
+        self.FilterBlocks.Position = pos
+
     def ftblock_forward(self):
         self.FilterBlocks.Forward()
 

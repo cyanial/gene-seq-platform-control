@@ -24,6 +24,9 @@ class state_singleton(QtCore.QObject):
     def __init__(self):
         if self._initialized:
             return
+
+        logger.info('create main state')
+
         super().__init__()
 
         self._state = {

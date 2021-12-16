@@ -15,6 +15,9 @@ from serial.tools import list_ports
 from .main_state import state_singleton
 from .serial import serial
 
+import logging
+logger = logging.getLogger(__name__)
+
 class flowcell_window(QDialog):
 
     sig_temp_on = QtCore.pyqtSignal()
@@ -29,6 +32,7 @@ class flowcell_window(QDialog):
 
     sig_pump_push_ul = QtCore.pyqtSignal(int)
     sig_pump_pull_ul = QtCore.pyqtSignal(int)
+    sig_pump_push_all = QtCore.pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -63,6 +67,8 @@ class flowcell_window(QDialog):
         self.sig_pump_push_ul.connect(self.flowcell_work.pumpPushuL)
         self.pullButton.clicked.connect(self.pump_pull_ul)
         self.sig_pump_pull_ul.connect(self.flowcell_work.pumpPulluL)
+        self.pushAllButton.clicked.connect(self.pump_push_all)
+        self.sig_pump_push_all.connect(self.flowcell_work.pump_push_all)
 
     @QtCore.pyqtSlot()
     def refresh_ports(self):
@@ -136,6 +142,11 @@ class flowcell_window(QDialog):
     def pump_pull_ul(self):
         ul = int(self.ulToPushOrPullLineEdit.text())
         self.sig_pump_pull_ul.emit(ul)
+
+    @QtCore.pyqtSlot()
+    def pump_push_all(self):
+        logger.info('flowcell pump push all - signal')
+        self.sig_pump_push_all.emit()
 
     def _is_open(self):
         return self.flowcell_work.is_open();  

@@ -51,27 +51,6 @@ class rcv_thread(QtCore.QThread):
                     # Pump State
                     if self._check_is_changed_and_write('flowcell_pump_state', int (rcv_cmd[7])):
                         self.update_sig.emit('flowcell_pump_state')
-                #     # Temperature
-                #     if (rcv_cmd[1] == 0x00):
-                #         if (rcv_cmd[2] == 0x00):
-                #             flowcell_temperature = (rcv_cmd[3] + rcv_cmd[4] / 100)
-                #             if self._check_is_changed_and_write('flowcell_temperature', flowcell_temperature):
-                #                 self.update_sig.emit('flowcell_temperature')
-                #     # Valve Pos
-                #     if (rcv_cmd[1] == 0x02):
-                #         if (rcv_cmd[2] == 0x00):
-                #             if self._check_is_changed_and_write('flowcell_valve_pos', int(rcv_cmd[4])):
-                #                 self.update_sig.emit('flowcell_valve_pos')
-                #     # Pump Valve Pos
-                #     if (rcv_cmd[1] == 0x01):
-                #         if (rcv_cmd[2] == 0x00):
-                #             if self._check_is_changed_and_write('flowcell_pump_valve_pos', int(rcv_cmd[4])):
-                #                 self.update_sig.emit('flowcell_pump_valve_pos')
-                #         if (rcv_cmd[2] == 0x03):
-                #             step_pos = int(rcv_cmd[3] << 8) + int(rcv_cmd[4])
-                #             if self._check_is_changed_and_write('flowcell_pump_pos', step_pos):
-                #                 self.update_sig.emit('flowcell_pump_pos')
-
             time.sleep(0.1)
 
 class serial(QtCore.QObject):
@@ -89,6 +68,8 @@ class serial(QtCore.QObject):
         if self._initialized:
             return
         super().__init__()
+
+        logger.debug('create serial object')
 
         self.flowcell = stm32_serial()
 
@@ -116,56 +97,64 @@ class serial(QtCore.QObject):
         self.flowcell.close()
 
     def start_receive(self):
+        logger.info('start flowcell receive thread')
         self.rcv_thread.start()
 
     def stop_receive(self):
+        logger.info('stop flowcell receive thread')
         self.rcv_thread.quit()
 
     @QtCore.pyqtSlot(float)
     def setup_temperature(self, setup_point):
+        logger.info('set flowcell control temperature - serial')
         self.flowcell.set_temp_pid(setup_point)
 
     @QtCore.pyqtSlot()
     def tempPIDON(self):
+        logger.info('turn on flowcell temperature control - serial')
         self.flowcell.start_temp_pid()
 
     @QtCore.pyqtSlot()
     def tempPIDOFF(self):
+        logger.info('turn off flowcell temperature control - serial')
         self.flowcell.stop_temp_pid()
 
     @QtCore.pyqtSlot(int)
     def valveGoToPos(self, pos):
+        logger.info(f'flowcell valve move to pos {pos} - serial')
         self.flowcell.valve_to_pos(pos)
 
     @QtCore.pyqtSlot()
     def pumpONC(self):
+        logger.info('flowcell pump valve move to on=c - serial')
         self.flowcell.pump_on_c()
 
     @QtCore.pyqtSlot()
     def pumpOFFC(self):
+        logger.info('flowcell pump valve move to on=off - serial')
         self.flowcell.pump_on_off()
 
     @QtCore.pyqtSlot(int)
     def pumpPushuL(self, ul):
+        logger.info(f'flowcell pump push {ul} uL - serial')
         self.flowcell.pump_push_ul(ul)
 
     @QtCore.pyqtSlot(int)
     def pumpPulluL(self, ul):
+        logger.info(f'flowcell pump push {ul} uL - serial')
         self.flowcell.pump_pull_ul(ul)
 
     @QtCore.pyqtSlot()
     def pump_push_all(self):
         # To-Do:
-        # Implement in stm32_serial to prevent blocking UI
+        logger.info('flowcell pump push all')
         self.pumpOFFC()
         while self.state['flowcell_pump_valve_pos'] != 4:
-            print('Wait pump')
+            pass
         self.pumpPushuL(int(self.state['flowcell_pump_pos'] * 0.21))
         time.sleep(1)
         while self.state['flowcell_pump_state'] != 0:
-            print('Wait Pump Push')
-
-        print('Done')
+            pass
 
     def send_test_command(self):
         self.flowcell._send_command(b'\x55\x00\x00\x00\x00\xaa')
