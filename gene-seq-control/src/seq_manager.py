@@ -26,21 +26,22 @@ logger = logging.getLogger(__name__)
 
 
 # Run_state:
-    # 'idle':
-    # 'running' - cycle 1/max:
-    #   - 'pump push all':
-    #   - 'prolong': 
-    #   - 'washing':
-    #   - 'imaging':
-    # 'pause':
+#     'idle':
+#     'running' - cycle 1/max:
+#       - 'pump push all':
+#       - 'prolong': 
+#       - 'washing':
+#       - 'imaging':
+#     'pause':
 
 seq_state = {
     'run_state': 'idle',
     'run_task': 'no task',
-    'total_cycle': 150,
+    'total_cycle': 5,
     'current_cycle': 0,
-    'seq_x_pos': [35, 40, 45, 50, 55, 60, 65, 70, 75],
-    'seq_y_pos': [36.5, 37.0, 38.5, 39.0],
+    # 'seq_x_pos': [35, 40, 45, 50, 55, 60, 65, 70, 75],
+    'seq_x_pos': [40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70],
+    'seq_y_pos': [36.9, 37.2, 37.5, 37.8, 38.1, 38.4],
     'output_folder': '',
     'current_seq_folder_name': ''
 }
@@ -80,6 +81,7 @@ class seq_task(QtCore.QThread):
         self.sig_update_task_state.emit()
 
     def run(self):
+        os.makedirs(seq_state['current_seq_folder_name'] + '\\' + str(seq_state['current_cycle']))
         logger.info('run seq task')
         self._update_run_state('running')
         self._update_task_state('pump: push all')
@@ -89,6 +91,7 @@ class seq_task(QtCore.QThread):
         if self.state['flowcell_pump_pos'] > 10000:
             self._update_task_state('prolong: pump push all')
         time.sleep(1)
+        # self.sleep(1)
 
         # Prolong Task
         self._update_task_state("prolong: pump valve -> on-c")
@@ -110,6 +113,7 @@ class seq_task(QtCore.QThread):
             time.sleep(1)
             self.wait_sec = self.wait_sec + 1
             self.sig_update_task_progress_bar.emit(self.wait_sec, 30)
+        self.wait_sec = 0
         
         # Wash Task
         self._update_task_state('washing: pump valve -> on-c')
@@ -138,33 +142,68 @@ class seq_task(QtCore.QThread):
 
         x_len = len(seq_state['seq_x_pos'])
         y_len = len(seq_state['seq_y_pos'])
-        for x in range(x_len):
-            for y in range(y_len):
-                self.sig_update_task_progress_bar.emit(y+y_len*x, x_len*y_len-1)
-                self._update_task_state(f'imaging: stage move to ({x},{y})')
-                self.stage.moveAbsolute(seq_state['seq_x_pos'][x], seq_state['seq_y_pos'][y])
-                time.sleep(1.5)
-                # A C T G
-                # Choose Filter -> Open Shutter -> Imaging -> Close Shutter -> Save Image
-                for i in range(1, 5):
-                    while self.state['ftblock_pos'] != i:
-                        self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i}')
-                        self.sig_mic_filter_block_move.emit(i)
-                        time.sleep(1)
-                    self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i}')
+        # A C T G - Shutter 1 -> 2 -> 3 -> 4
+        # Choose Filter -> Open Shutter -> Imaging -> Close Shutter -> Save Image
+        for i in range(1, 5):
+            while self.state['ftblock_pos'] != i:
+                self._update_task_state(f'imaging: filter block -> {i}')
+                self.sig_mic_filter_block_move.emit(i)
+                time.sleep(1)
+            for x in range(x_len):
+                for y in range(y_len):
+                    self.sig_update_task_progress_bar.emit(y+y_len*x+x_len*y_len*(i-1), x_len*y_len*4-1)
+                    # Move Stages -> (x,y)
+                    self._update_task_state(f'imaging: ({x},{y},{i}) stage moving ...')
+                    self.stage.moveAbsolute(seq_state['seq_x_pos'][x], seq_state['seq_y_pos'][y])
+                    time.sleep(1)
+                    # Open Shutter
+                    self._update_task_state(f'imaging: ({x},{y},{i}) open shutter')
                     self.sig_mic_shutter_open.emit(i)
+                    # Start Acquisition
                     self.camera.startAcquisition()
-                    self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i} ......')
+                    self._update_task_state(f'imaging: ({x},{y},{i}) imaging ...')
                     time.sleep(self.state['exposure_time'])
                     while self.state['cam_state'] != 'IDLE':
                         pass
+                    # Close Shutter
                     self.sig_mic_close_all_shutter.emit()
-                    self._update_task_state(f'imaging: ({x},{y},{i}) acquire data')
+                    # Acquiring data
+                    self._update_task_state(f'imaging: ({x},{y},{i}) acquiring data ...')
                     self.state['npimage'] = self.camera.camera.acquireData()
                     self.camera.sig_image_data_ready.emit()
-                    time.sleep(1)
-                    self._update_task_state(f'imaging: ({x},{y},{i}) save image to file')
-                    tifffile.imsave(seq_state['current_seq_folder_name'] + f'\\pos_{x}_{y}_shutter{i}.tif', self.state['npimage'])
+                    time.sleep(0.5)
+                    self._update_task_state(f'imaging: ({x},{y},{i}) save image to file ...')
+                    tifffile.imsave(seq_state['current_seq_folder_name'] + '\\' + str(seq_state['current_cycle']) + f'\\pos_{x}_{y}_shutter{i}.tif', self.state['npimage'])
+        print('Done')
+
+        # for x in range(x_len):
+        #     for y in range(y_len):
+        #         self.sig_update_task_progress_bar.emit(y+y_len*x, x_len*y_len-1)
+        #         self._update_task_state(f'imaging: stage move to ({x},{y})')
+        #         self.stage.moveAbsolute(seq_state['seq_x_pos'][x], seq_state['seq_y_pos'][y])
+        #         time.sleep(1.5)
+        #         # A C T G
+        #         # Choose Filter -> Open Shutter -> Imaging -> Close Shutter -> Save Image
+        #         for i in range(1, 5):
+        #             while self.state['ftblock_pos'] != i:
+        #                 self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i}')
+        #                 self.sig_mic_filter_block_move.emit(i)
+        #                 time.sleep(1)
+        #             self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i}')
+        #             self.sig_mic_shutter_open.emit(i)
+        #             self.camera.startAcquisition()
+        #             self._update_task_state(f'imaging: ({x},{y},{i})filter block -> {i} open shutter {i} ......')
+        #             time.sleep(self.state['exposure_time'])
+        #             while self.state['cam_state'] != 'IDLE':
+        #                 pass
+        #             self.sig_mic_close_all_shutter.emit()
+        #             self._update_task_state(f'imaging: ({x},{y},{i}) acquire data')
+        #             self.state['npimage'] = self.camera.camera.acquireData()
+        #             self.camera.sig_image_data_ready.emit()
+        #             time.sleep(1)
+        #             self._update_task_state(f'imaging: ({x},{y},{i}) save image to file')
+        #             tifffile.imsave(seq_state['current_seq_folder_name'] + '\\' + str(seq_state['current_cycle']) + f'\\pos_{x}_{y}_shutter{i}.tif', self.state['npimage'])
+        # print('Done')
 
 class seq_manager(QDialog):
     
@@ -188,8 +227,11 @@ class seq_manager(QDialog):
         self.seq_task.sig_update_task_state.connect(self.update_task_name)
         self.seq_task.sig_update_task_progress_bar.connect(self.update_task_progress_bar)
 
+        self.seq_task.finished.connect(self.nextSeqCycle)
+
         self.outputFolderButton.clicked.connect(self.chooseDirctory)
         self.startSeqButton.clicked.connect(self.startSeq)
+        self.abortButton.clicked.connect(self.abortSeq)
 
     @QtCore.pyqtSlot()
     def update_seq_state(self):
@@ -209,53 +251,31 @@ class seq_manager(QDialog):
         os.makedirs(seq_state['current_seq_folder_name'])
         self.seq_task.start()
         
-        
-        
     @QtCore.pyqtSlot()
-    def imagingWork(self):
-        self.imagingWorkTimer.stop()
-        self.stage.moveAbsolute(self.seq_x_pos[self.idx_x], self.seq_y_pos[self.idx_y])
-        time.sleep(3)
-        # A C T G
-        # Choose Filter
-        # Open Shutter
-        # Imaging - - - -
-        for i in range(1, 5):
-            # while self.state['ftblock_pos'] != i:
-            #     if self.state['ftblock_pos'] > i:
-            #         self.mic.filterBlockReverse()
-            #     else:
-            #         self.mic.filterBlockForward()
-            #     QtCore.QThread.sleep(1)
-            self.mic.openShutter(i)
-            self.camera.startAcquisition()
-            print(f"Imaging: Shutter{i} - pos: {self.idx_x}, {self.idx_y}")
-            time.sleep(self.state['exposure_time'])
-            while self.state['cam_state'] != 'IDLE':
-                print(self.state['cam_state'])
-            self.mic.closeAllShutter()
-            self.state['npimage'] = self.camera.camera.acquireData()
-            time.sleep(1)
-            # Save Files to output folder (filename)
-            tifffile.imsave(self.output_folder + f'\\pos_{self.idx_x}_{self.idx_y}_shutter{i}.tif', self.state['npimage'])
+    def abortSeq(self):
+        self.seq_task.quit()
+        seq_state['current_cycle'] = 0
+        self._update_alltask_progress_bar(0, 0)
+        self._update_task_progress_bar(0, 0)
+        self._set_current_state('idle')
+        self._set_current_task('no task')
+        
 
-        self.idx_x = self.idx_x + 1
-        if self.idx_x == self.idx_x_sum:
-            self.idx_y = self.idx_y + 1
-            if self.idx_y == self.idx_y_sum:
-                # Do next cycle
-                print('Imaging Done')
-                return
-            self.idx_x = 0
-        self.currentTaskProgressBar.setValue(int((self.idx_x + self.idx_x_sum * self.idx_y) / (self.idx_x_sum * self.idx_y_sum) * 100))
-        self.run_task = f'imaging - x: {self.seq_x_pos[self.idx_x]} y:{self.seq_y_pos[self.idx_y]}'
-        self._set_current_task(self.run_task)
-        self.imagingWorkTimer.start(1000)
-            
+    @QtCore.pyqtSlot()
+    def nextSeqCycle(self):
+        seq_state['current_cycle'] = seq_state['current_cycle'] + 1
+        self._update_alltask_progress_bar(seq_state['current_cycle'], seq_state['total_cycle'])
+        if seq_state['current_cycle'] == seq_state['total_cycle']:
+            seq_state['current_cycle'] = 0
+            self._set_current_state('finished')
+            self._set_current_task('no task')
+            return
+        self.seq_task.start()
         
     @QtCore.pyqtSlot()
     def chooseDirctory(self):
-        dir_choose = QFileDialog.getExistingDirectory(self, 'Choose output folder', self.output_folder)
+        dir_choose = QFileDialog.getExistingDirectory(self, 'Choose output folder', seq_state['output_folder'])
+        # seq_state['output_folder'] = dir_choose
         self._set_output_folder(dir_choose)
 
     def _set_output_folder(self, foldername):
